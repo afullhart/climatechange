@@ -10,7 +10,7 @@ var months = ee.List.sequence(1, 12);
 var ic_monthly =  ee.ImageCollection.fromImages(
   years.map(function(y) {
       return months.map(function(m) {
-        var v_start = ee.Date.fromYMD(y, m, 1).update({hour:12});
+        var v_start = ee.Date.fromYMD(y, m, 1).update({hour:7});
         var month_image = dataset.filterDate(v_start).first();
         return month_image
                .set('year', y)
