@@ -39,10 +39,10 @@ for (var i = 0; i < 12; i++) {
                         description: 'spei12mo_' + m + '_1974_2013', 
                         assetId: out_dir + 'spei12mo_' + m + '_1974_2013',
                         region: bounds, 
-                        scale:proj.nominalScale().getInfo(), 
+                        scale: proj.nominalScale().getInfo(), 
                         crsTransform: [0.00833333333, 0, -125.02083333, 0, 0.00833333333, 24.0625],
                         crs: 'EPSG:4326',
-                        maxPixels:1e13});
+                        maxPixels: 1e13});
 }
 
 
