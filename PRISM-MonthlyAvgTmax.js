@@ -1,6 +1,7 @@
 var path = 'users/gponce/usda_ars/image_collections/prism800m_monthly_tmax'; //'b1'
 
 var dataset = ee.ImageCollection(path).select('b1');
+var bounds = dataset.geometry().bounds();
 var proj=dataset.first().projection();
 var start_year = 1974;
 var end_year = 2013;
@@ -37,8 +38,9 @@ for (var i = 0; i < 12; i++) {
                                     .rename(['tmax_'+ m]), 
                         description: 'tmax_' + m + '_1974_2013', 
                         assetId: out_dir + 'tmax_' + m + '_1974_2013',
-                        scale:proj.nominalScale().getInfo(), 
+                        region: bounds, 
+                        scale: proj.nominalScale().getInfo(), 
                         crsTransform: [0.00833333333, 0, -125.02083333, 0, 0.00833333333, 24.0625],
                         crs: 'EPSG:4326',
-                        maxPixels:1e13});
+                        maxPixels: 1e13});
 }
