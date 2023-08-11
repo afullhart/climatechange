@@ -5,6 +5,7 @@ var dem_dataset = ee.Image('USGS/3DEP/10m');
 var elevation = dem_dataset.select('elevation');
 var slope = ee.Terrain.slope(elevation);
 var bounds = coarse_image.geometry().bounds();
+
 var out_dir = 'users/andrewfullhart/';
 
 Export.image.toAsset({image: slope,
