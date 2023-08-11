@@ -3,7 +3,7 @@ var coarse_image = ee.ImageCollection(path).first();
 var coarseProjection = coarse_image.projection();
 var dem_dataset = ee.Image('USGS/3DEP/10m');
 var elevation = dem_dataset.select('elevation');
-var bounds = elevation.geometry().bounds();
+var bounds = coarse_image.geometry().bounds();
 
 var elevAvg = elevation
     .reduceResolution({
