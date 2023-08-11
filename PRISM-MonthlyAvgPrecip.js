@@ -2,7 +2,7 @@ var path = 'users/gponce/usda_ars/image_collections/prism800m_monthly_precipitat
 
 var dataset = ee.ImageCollection(path).select('b1');
 var bounds = dataset.geometry().bounds();
-var proj=dataset.first().projection();
+var proj = dataset.first().projection();
 var start_year = 1974;
 var end_year = 2013;
 var years = ee.List.sequence(start_year, end_year);
