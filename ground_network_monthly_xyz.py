@@ -1,16 +1,17 @@
 import os
 
+folder = r'C:\Users\afullhart\Downloads\2015parfiles\2015parfiles'
+files = os.listdir( folder )
+files = [f for f in files if f[:2] not in ['st', 'ak', 'hi', 'pi', 'pr']]
+files = [folder + '\\' + f for f in files]
+
 
 ###############################################################################
 'MEANP'
 ###############################################################################
 
 
-folder = r'C:\Users\afullhart\Downloads\2015parfiles\2015parfiles'
 outfolder = r'C:\Users\afullhart\Desktop\Climate Change\CLIGEN Network XYZ\MEANP'
-
-files = [folder + '\\' + f for f in os.listdir(folder)]
-files = [f for f in files if 'stations2015.txt' not in f]
 
 data_dict = {}
 for file in files:
@@ -45,11 +46,7 @@ for i in range(12):
 ###############################################################################
 
 
-folder = r'C:\Users\afullhart\Downloads\2015parfiles\2015parfiles'
 outfolder = r'C:\Users\afullhart\Desktop\Climate Change\CLIGEN Network XYZ\SDEVP'
-
-files = [folder + '\\' + f for f in os.listdir(folder)]
-files = [f for f in files if 'stations2015.txt' not in f]
 
 data_dict = {}
 for file in files:
@@ -84,11 +81,7 @@ for i in range(12):
 ###############################################################################
 
 
-folder = r'C:\Users\afullhart\Downloads\2015parfiles\2015parfiles'
 outfolder = r'C:\Users\afullhart\Desktop\Climate Change\CLIGEN Network XYZ\SKEWP'
-
-files = [folder + '\\' + f for f in os.listdir(folder)]
-files = [f for f in files if 'stations2015.txt' not in f]
 
 data_dict = {}
 for file in files:
@@ -123,11 +116,7 @@ for i in range(12):
 ###############################################################################
 
 
-folder = r'C:\Users\afullhart\Downloads\2015parfiles\2015parfiles'
 outfolder = r'C:\Users\afullhart\Desktop\Climate Change\CLIGEN Network XYZ\MX5P'
-
-files = [folder + '\\' + f for f in os.listdir(folder)]
-files = [f for f in files if 'stations2015.txt' not in f]
 
 data_dict = {}
 for file in files:
@@ -162,11 +151,7 @@ for i in range(12):
 ###############################################################################
 
 
-folder = r'C:\Users\afullhart\Downloads\2015parfiles\2015parfiles'
 outfolder = r'C:\Users\afullhart\Desktop\Climate Change\CLIGEN Network XYZ\RATIO'
-
-files = [folder + '\\' + f for f in os.listdir(folder)]
-files = [f for f in files if 'stations2015.txt' not in f]
 
 data_dict = {}
 for file in files:
