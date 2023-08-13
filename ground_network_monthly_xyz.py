@@ -2,7 +2,7 @@ import os
 
 folder = r'C:\Users\afullhart\Downloads\2015parfiles\2015parfiles'
 files = os.listdir( folder )
-files = [f for f in files if f[:2] not in ['st', 'ak', 'hi', 'pi', 'pr']]
+files = [f for f in files if f[:2] not in ['st', 'ak', 'hi', 'pi', 'pr', 'vi']]
 files = [folder + '\\' + f for f in files]
 
 
