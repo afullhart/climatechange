@@ -20,7 +20,7 @@ var sample_fc = sum_image.sampleRegions(points);
 print(sample_fc);
 
 Export.table.toDrive({collection:sample_fc,
-                      description:'allmodelsJul',
+                      description:'PRISM_USCLIGEN_Map_Sample_Annual_Precip',
                       selectors:['stationID', 'b1'],
                       folder:'GEE_Downloads'
 });
