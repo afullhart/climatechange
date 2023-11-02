@@ -11,18 +11,12 @@ var start = ee.Date.fromYMD(start_year, 1, 1);
 var end = ee.Date.fromYMD(end_year, 1, 1);
 
 var sum_image = dataset.filterDate(start, end).sum().divide(40);
-print(sum_image);
-print(points);
 Map.addLayer(sum_image);
 
 var sample_fc = sum_image.sampleRegions(points);
-print(sample_fc);
 
 Export.table.toDrive({collection:sample_fc,
                       description:'PRISM_USCLIGEN_Map_Sample_Annual_Precip',
                       selectors:['stationID', 'b1'],
                       folder:'GEE_Downloads'
 });
-
-
-
