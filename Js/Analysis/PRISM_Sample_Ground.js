@@ -11,8 +11,6 @@ var start = ee.Date.fromYMD(start_year, 1, 1);
 var end = ee.Date.fromYMD(end_year, 1, 1);
 
 var sum_image = dataset.filterDate(start, end).sum().divide(40);
-Map.addLayer(sum_image);
-
 var sample_fc = sum_image.sampleRegions(points);
 
 Export.table.toDrive({collection:sample_fc,
