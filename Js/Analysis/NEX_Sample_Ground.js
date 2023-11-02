@@ -1,6 +1,7 @@
 var path = 'NASA/NEX-DCP30'; //'pr kg/m^2/s'
 var dataset = ee.ImageCollection(path);
 var points = ee.FeatureCollection('users/andrewfullhart/US_CLIGEN_Coords');
+print(points);
 
 var dataset = ee.ImageCollection(path).select('pr');
 var bounds = dataset.geometry().bounds();
@@ -23,16 +24,17 @@ function model_fn(model){
                   .filter(modelfilter)
                   .select('pr')
                   .sum().divide(40).multiply(86400);
-  var sample_fc = ic.sampleRegions(points);
+  var sample_fc = ic.sampleRegions(points, ['stationID']);
+  var stationID_list = sample_fc.aggregate_array('stationID');
   var precip_list = sample_fc.aggregate_array('pr');
-  return ee.Feature(null,{md:model, pr:precip_list});
+  return ee.Feature(null,{md:model, stationID:stationID_list, pr:precip_list});
 }
 
 var out_fc = ee.FeatureCollection(models.map(model_fn));
 
 Export.table.toDrive({collection:out_fc,
-                      description:'NEX_USCLIGEN_Map_Sample_Annual_Precip4',
-                      selectors:['md', 'pr'],
+                      description:'NEX_USCLIGEN_Map_Sample_Annual_Precip',
+                      selectors:['md', 'stationID,', 'pr'],
                       folder:'GEE_Downloads'
 });
 
