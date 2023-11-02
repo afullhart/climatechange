@@ -9,7 +9,6 @@ var start_year = 1974;
 var end_year = 2013;
 var start = ee.Date.fromYMD(start_year, 1, 1);
 var end = ee.Date.fromYMD(end_year, 1, 1);
-var years = ee.List.sequence(start_year, end_year);
 
 var sum_image = dataset.filterDate(start, end).sum().divide(40).multiply(86400);
 print(sum_image);
