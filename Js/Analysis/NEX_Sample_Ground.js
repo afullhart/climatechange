@@ -32,7 +32,7 @@ var out_fc = ee.FeatureCollection(models.map(model_fn));
 
 Export.table.toDrive({collection:out_fc,
                       description:'NEX_USCLIGEN_Map_Sample_Annual_Precip4',
-                      selectors:['stationID', 'md', 'pr'],
+                      selectors:['md', 'pr'],
                       folder:'GEE_Downloads'
 });
 
