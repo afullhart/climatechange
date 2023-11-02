@@ -8,20 +8,33 @@ var proj = dataset.first().projection();
 var start_year = 1974;
 var end_year = 2013;
 var start = ee.Date.fromYMD(start_year, 1, 1);
-var end = ee.Date.fromYMD(end_year, 1, 1);
+var end = ee.Date.fromYMD(end_year, 12, 31);
 
-var sum_image = dataset.filterDate(start, end).sum().divide(40).multiply(86400);
-print(sum_image);
-print(points);
-Map.addLayer(sum_image);
+var models = ['ACCESS1-0', 'bcc-csm1-1', 'BNU-ESM', 'CanESM2', 'CCSM4', 'CESM1-BGC', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'GFDL-CM3', 'GFDL-ESM2G', 'GFDL-ESM2M', 'inmcm4', 'IPSL-CM5A-LR', 'IPSL-CM5A-MR', 'MIROC-ESM', 'MIROC-ESM-CHEM', 'MIROC5', 'MPI-ESM-LR', 'MPI-ESM-MR', 'MRI-CGCM3', 'NorESM1-M'];
+//var models = ['ACCESS1-0', 'bcc-csm1-1'];
 
-var sample_fc = sum_image.sampleRegions(points);
-print(sample_fc);
+var modelfilter = ee.Filter.or(
+                  ee.Filter.eq('scenario', 'historical'),
+                  ee.Filter.eq('scenario', 'rcp45'));
 
-Export.table.toDrive({collection:sample_fc,
-                      description:'NEX_USCLIGEN_Map_Sample_Annual_Precip',
-                      selectors:['stationID', 'pr'],
+function model_fn(model){
+  var ic = dataset.filterDate(start, end)
+                  .filter(ee.Filter.eq('model', model))
+                  .filter(modelfilter)
+                  .select('pr')
+                  .sum().divide(40).multiply(86400);
+  var sample_fc = ic.sampleRegions(points);
+  var precip_list = sample_fc.aggregate_array('pr');
+  return ee.Feature(null,{md:model, pr:precip_list});
+}
+
+var out_fc = ee.FeatureCollection(models.map(model_fn));
+
+Export.table.toDrive({collection:out_fc,
+                      description:'NEX_USCLIGEN_Map_Sample_Annual_Precip4',
+                      selectors:['stationID', 'md', 'pr'],
                       folder:'GEE_Downloads'
 });
+
 
 
