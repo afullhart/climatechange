@@ -37,7 +37,7 @@ function model_fn(model){
   var ic_nested = ic.filterDate(start_nested, end_nested);
   function month_fn(month){
     var mo_im = ic_nested.filter(ee.Filter.calendarRange(month, month,'month'))
-                  .sum().multiply(86400).divide(30)
+                  .sum().multiply(86400).divide(40)
                   .multiply(ee.Number(ndays_months.get(ee.Number(month).subtract(1))));
     return mo_im;
   }
