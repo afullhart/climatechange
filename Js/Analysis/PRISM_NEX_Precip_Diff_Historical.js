@@ -58,7 +58,7 @@ function model_fn(model){
 var out_fc = ee.FeatureCollection(model_list.map(model_fn));
 
 Export.table.toDrive({collection:out_fc, 
-                      description:'PRISM_NEX_PRECIP_DIFF',
+                      description:'PRISM_NEX_PRECIP_DIFF_HISTORICAL',
                       folder:'GEE_Downloads',
                       selectors:['model', 'precip']});
 
