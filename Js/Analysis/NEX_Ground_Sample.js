@@ -1,7 +1,6 @@
 var path = 'NASA/NEX-DCP30'; //'pr kg/m^2/s'
 var dataset = ee.ImageCollection(path);
 var points = ee.FeatureCollection('users/andrewfullhart/US_CLIGEN_Coords');
-print(points);
 
 var dataset = ee.ImageCollection(path).select('pr');
 var bounds = dataset.geometry().bounds();
@@ -12,12 +11,9 @@ var start = ee.Date.fromYMD(start_year, 1, 1);
 var end = ee.Date.fromYMD(end_year, 12, 31);
 
 var models = ['ACCESS1-0', 'bcc-csm1-1', 'BNU-ESM', 'CanESM2', 'CCSM4', 'CESM1-BGC', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'GFDL-CM3', 'GFDL-ESM2G', 'GFDL-ESM2M', 'inmcm4', 'IPSL-CM5A-LR', 'IPSL-CM5A-MR', 'MIROC-ESM', 'MIROC-ESM-CHEM', 'MIROC5', 'MPI-ESM-LR', 'MPI-ESM-MR', 'MRI-CGCM3', 'NorESM1-M'];
-//var models = ['ACCESS1-0', 'bcc-csm1-1'];
 
 var ndays_months = ee.List([31, 28.25, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]);
 var order_months = ee.List([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
-
-
 
 var modelfilter = ee.Filter.or(
                   ee.Filter.eq('scenario', 'historical'),
@@ -45,12 +41,11 @@ function model_fn(model){
 }
 
 var out_fc = ee.FeatureCollection(models.map(model_fn));
-print(out_fc);
-
 
 Export.table.toDrive({collection:out_fc,
                       description:'NEX_USCLIGEN_Map_Sample_Annual_Precip',
                       selectors:['md', 'stationID,', 'pr'],
                       folder:'GEE_Downloads'
 });
+
 
