@@ -16,33 +16,13 @@ var pri_im = pri_set.filterDate(start, end).sum().divide(40);
 var ndays_months = ee.List([31, 28.25, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]);
 var order_months = ee.List([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
 
-var start_year = 2000;
-var end_year = 2070;
-var years_list = ee.List.sequence(start_year, end_year);
-
 var modelfilter = ee.Filter.or(
                   ee.Filter.eq('scenario', 'historical'),
                   ee.Filter.eq('scenario', 'rcp45'));
 
-var ic = nex_set.filter(ee.Filter.eq('model', 'CCSM4'))
+var ic = nex_set.filter(ee.Filter.eq('model', 'CESM1-BGC'))
                 .filter(modelfilter)
                 .select('pr');
-
-function year_fn(year){
-  var start = ee.Date.fromYMD(year, 1, 1);
-  var end = ee.Date.fromYMD(year.add(29), 12, 31);
-  var ic = ic.filterDate(start, end);
-  function month_fn(month){
-    var mo_im = ic.filter(ee.Filter.calendarRange(month, month,'month'))
-                  .sum().multiply(86400).divide(30)
-                  .multiply(ee.Number(ndays_months.get(ee.Number(month).subtract(1))));
-    return mo_im;
-  }
-  var mo_im = ee.ImageCollection(order_months.map(month_fn))
-                .sum().divide(30);
-  return mo_im;
-}
-
 
 var start = ee.Date.fromYMD(2070, 1, 1);
 var end = ee.Date.fromYMD(ee.Number(2070).add(29), 12, 31);
