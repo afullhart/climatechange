@@ -32,7 +32,7 @@ var pri_im = pri_set.filterDate(start, end).sum().divide(40);
 var ndays_months = ee.List([31, 28.25, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]);
 var order_months = ee.List([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
 
-var start_year = 2000;
+var start_year = 1985;
 var end_year = 2070;
 var years_list = ee.List.sequence(start_year, end_year);
 
