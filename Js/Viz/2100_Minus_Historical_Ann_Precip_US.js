@@ -65,8 +65,14 @@ var legendLabels = ui.Panel({
   widgets:[
     ui.Label(visParam.min, {margin: '4px 8px'}),
     ui.Label(
+    ((visParam.max-visParam.min) / 4+visParam.min),
+    {margin: '4px 8px', textAlign: 'center', stretch: 'horizontal'}),
+    ui.Label(
         ((visParam.max-visParam.min) / 2+visParam.min),
         {margin: '4px 8px', textAlign: 'center', stretch: 'horizontal'}),
+    ui.Label(
+    ((visParam.max-visParam.min) / (4/3)+visParam.min),
+    {margin: '4px 8px', textAlign: 'center', stretch: 'horizontal'}),
     ui.Label(visParam.max, {margin: '4px 8px'})
   ],
   layout:ui.Panel.Layout.flow('horizontal')
