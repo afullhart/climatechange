@@ -37,6 +37,7 @@ var modelfilter = ee.Filter.or(
 var nex_set = nex_set.filter(modelfilter);
 
 for (var i=0; i < model_loop_list.length; ++i){
+
   var model_list = ee.List(model_loop_list[i]);
 
   function model_fn(model){
@@ -45,15 +46,15 @@ for (var i=0; i < model_loop_list.length; ++i){
                     .filter(modelfilter)
                     .select('pr');
   
-    var pri_ic = ic.filterDate(start, end);
+    var ref_ic = ic.filterDate(start, end);
   
     function month_fn(month){
-      var mo_im = pri_ic.filter(ee.Filter.calendarRange(month, month,'month'))
+      var mo_im = ref_ic.filter(ee.Filter.calendarRange(month, month,'month'))
                     .sum().multiply(86400).divide(40)
                     .multiply(ee.Number(ndays_months.get(ee.Number(month).subtract(1))));
       return mo_im;
     }
-    var pri_im = ee.ImageCollection(order_months.map(month_fn)).sum();    
+    var ref_im = ee.ImageCollection(order_months.map(month_fn)).sum();    
 
     function year_fn(year){
   
@@ -67,20 +68,33 @@ for (var i=0; i < model_loop_list.length; ++i){
         return mo_im;
       }
       var ann_im = ee.ImageCollection(order_months.map(month_fn)).sum();
-      var diff_im = ann_im.subtract(pri_im).divide(pri_im).multiply(100);
+      var diff_im = ann_im.subtract(ref_im).divide(ref_im).multiply(100);
       var klip_im = diff_im.clip(study_area);
-      
       var mean_dict = klip_im.reduceRegion({
         reducer:ee.Reducer.mean(),
         geometry:study_area.geometry(),
         scale:500,
         maxPixels:1e10
       });
-      var avg = mean_dict.get('pr');
-      return avg;
+      var avg_rel = mean_dict.get('pr');
+      
+      var diff_im = ann_im.subtract(ref_im).pow(2).pow(0.5).divide(ref_im).multiply(100);
+      var klip_im = diff_im.clip(study_area);
+      var mean_dict = klip_im.reduceRegion({
+        reducer:ee.Reducer.mean(),
+        geometry:study_area.geometry(),
+        scale:500,
+        maxPixels:1e10
+      });
+      var avg_abs = mean_dict.get('pr');
+
+      return ee.List([avg_abs, avg_rel]);
     }
-    var avg_list = years_list.map(year_fn);
-    return ee.Feature(null, {model:model, precip:avg_list});
+    
+    var avgs_arr = ee.Array(years_list.map(year_fn));
+    var avg_abs_list = avgs_arr.slice(1, 0, 1).toList().flatten();
+    var avg_rel_list = avgs_arr.slice(1, 1, 2).toList().flatten();
+    return ee.Feature(null, {model:model, avg_abs:avg_abs_list, avg_rel:avg_rel_list});
   }
   
   var out_fc = ee.FeatureCollection(model_list.map(model_fn));
@@ -88,6 +102,7 @@ for (var i=0; i < model_loop_list.length; ++i){
   Export.table.toDrive({collection:out_fc, 
                         description:'trends',
                         folder:'GEE_Downloads',
-                        selectors:['model', 'precip']});
+                        selectors:['model', 'avg_abs', 'avg_rel']});
 }
+
 
