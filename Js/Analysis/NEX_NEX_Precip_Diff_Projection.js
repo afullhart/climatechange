@@ -100,7 +100,7 @@ for (var i=0; i < model_loop_list.length; ++i){
   var out_fc = ee.FeatureCollection(model_list.map(model_fn));
   
   Export.table.toDrive({collection:out_fc, 
-                        description:'NEX_NEX_Precip_Diff_Projection',
+                        description:'NEX_NEX_PRECIP_DIFF_PROJECTION',
                         folder:'GEE_Downloads',
                         selectors:['model', 'avg_abs', 'avg_rel']});
 }
