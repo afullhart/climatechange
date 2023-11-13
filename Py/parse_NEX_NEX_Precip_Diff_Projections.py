@@ -1,8 +1,7 @@
-from prompt_toolkit.shortcuts.progress_bar.base import E
 from google.colab import drive
 drive.mount('/content/drive')
 
-with open('/content/drive/My Drive/Colab Notebooks/in_percent_change_all_models.csv') as f:
+with open('/content/drive/My Drive/Colab Notebooks/NEX_NEX_PRECIP_DIFF_PROJECTIONS.csv') as f:
   next(f)
   lines = f.readlines()
 
@@ -19,7 +18,7 @@ for key in results_dict:
   keys.append(key)
 keys = sorted(keys, key=str.casefold)
 
-with open('/content/drive/My Drive/Colab Notebooks/percent_change_all_models.csv', 'w') as fo:
+with open('/content/drive/My Drive/Colab Notebooks/NEX_NEX_PRECIP_DIFF_PROJECTIONS_PARSED.csv', 'w') as fo:
   model_string = '_abs,'.join(keys) + '_abs,'
   fo.write(model_string)
   model_string = '_rel,'.join(keys) + '_rel\n'
