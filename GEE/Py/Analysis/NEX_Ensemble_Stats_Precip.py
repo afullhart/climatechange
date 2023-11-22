@@ -3,7 +3,7 @@ ee.Initialize()
 
 ic = ee.ImageCollection('NASA/NEX-DCP30')
 
-out_file = '/content/drive/MyDrive/Colab Notebooks/NEX_Ensemble_Stats.csv'
+out_file = '/content/drive/MyDrive/Colab Notebooks/NEX_Ensemble_Stats_Precip.csv'
 
 study_area = ee.FeatureCollection('users/andrewfullhart/SW_Study_Area')
 
