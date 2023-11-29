@@ -38,8 +38,8 @@ def model_fn(model):
     return mo_im
 
   mo_ic = ee.ImageCollection(order_months.map(month_fn))
-  mo_im = mo_ic.sum()
-  sample_fc = mo_im.sampleRegions(points, ['stationID'])
+  ann_im = mo_ic.sum()
+  sample_fc = ann_im.sampleRegions(points, ['stationID'])
   stationID_list = sample_fc.aggregate_array('stationID')
   precip_list = sample_fc.aggregate_array('pr')
   return ee.Feature(None,{'md':model, 'stationID':stationID_list, 'pr':precip_list})
