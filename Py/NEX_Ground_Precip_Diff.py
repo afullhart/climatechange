@@ -1,18 +1,35 @@
 import numpy as np
+import shutil
+import os
+baseDIR = '/content/driver/My Drive/Colab Notebooks'
+outFOLDER = 'Output_NEX_Ground_Precip_Diff'
 
-usCLIGENf = '/content/drive/My Drive/Colab Notebooks/USCLIGEN_Annual_Precip.csv'
-nexf = '/content/drive/My Drive/Colab Notebooks/NEX_USCLIGEN_Map_Sample_Annual_Precip.csv'
-outONEf = '/content/drive/My Drive/Colab Notebooks/NEX_Ground_Precip_Diff_Results.csv'
-outTWOf = '/content/drive/My Drive/Colab Notebooks/NEX_Ground_Precip_Diff_Datapoints.csv'
+if os.path.exists(os.path.join(baseDIR, outFOLDER)):
+  shutil.rmtree(os.path.join(baseDIR, outFOLDER))
+os.makedirs(os.path.join(baseDIR, outFOLDER))
+
+usCLIGENf = os.path.join(baseDIR, 'USCLIGEN_Annual_Precip.csv')
+nexf = os.path.join(baseDIR, 'NEX_USCLIGEN_Map_Sample_Annual_Precip.csv')
+outONEf = os.path.join(baseDIR, outFOLDER, 'NEX_Ground_Precip_Diff_Results.csv')
+outTWOf = os.path.join(baseDIR, outFOLDER, 'NEX_Ground_Precip_Diff_Datapoints.csv')
+outTHREEf = os.path.join(baseDIR, outFOLDER, 'bad.csv')
+
+#Has missing NEX sample value
+bad_list_one = ['az026132']
+#Has suspect NEX sample value
+bad_list_two = ['ut424856','ut428119','ut425182','ut423809','ut420061','ut420072','ut427598','ut429595','ut425186','ut422726','ut422057','ut422385','ut426919','ut421759','ut427271','ut426869','ut428733','ut424467','ut427846']
+bad_list = bad_list_one + bad_list_two
+
 
 stationID_list = []
 us_dict = {}
+print(usCLIGENf)
 with open(usCLIGENf) as f:
   next(f)
   for line in f:
     row = line.strip('\n').split(',')
     stationID = row[0]
-    if stationID[:2] in ['az', 'nv', 'nm', 'ut'] and stationID != 'az026132':
+    if stationID[:2] in ['az', 'nv', 'nm', 'ut'] and stationID not in bad_list:
       stationID_list.append(row[0])
       us_dict[row[0]] = float(row[1])*25.4
 
@@ -28,11 +45,8 @@ with open(nexf) as f:
     datarow = [float(x) for x in row.split(',')]
     nex_dict[modelID] = {stationIDs[i]:datarow[i] for i, data in enumerate(datarow)}
 
-#print(nex_dict['ACCESS1-0']['az026801'])
-#print(nex_dict['ACCESS1-0']['az026132'])
-
 results_dict = {}
-datapts_dict = {md:{stationID:None for stationID in stationID_list} for md in nex_dict}
+datapts_dict = {md:{} for md in nex_dict}
 datapts_dict['obs'] = {stationID:str(us_dict[stationID]) for stationID in stationID_list}
 for modelID in nex_dict:
   abspererr = []
@@ -40,11 +54,32 @@ for modelID in nex_dict:
   for stationID in stationID_list:
     est = nex_dict[modelID][stationID]
     obs = us_dict[stationID]
+    #if est > 700.:
+      #badd.append(stationID)
     abspererr.append(abs(est-obs)/obs*100)
     sqrerr.append((est-obs)**2)
     datapts_dict[modelID][stationID] = str(est)
   results_dict[modelID] = [str(np.mean(abspererr)),
                            str(np.mean(sqrerr)**0.5)]
+
+for model in results_dict:
+  y = np.array([float(datapts_dict[model][stn]) for stn in datapts_dict[model]])
+  x = np.array([float(datapts_dict['obs'][stn]) for stn in datapts_dict['obs']])
+  X = x[:,np.newaxis]
+  a, b, c, d = np.linalg.lstsq(X, y)
+
+  #rmse = np.sqrt(np.mean((y-x)**2))
+  #print(rmse)
+
+  resid = []
+  for i, x_val in enumerate(x):
+    resid.append(abs(y[i] - a*x_val))
+  resid_std = np.std(resid, ddof=1)
+
+  rmse = np.sqrt(np.mean([(y[i]-x[i])**2 for i, r in enumerate(resid) if r < 2*resid_std]))
+  print(model)
+  print(rmse)
+
 
 with open(outONEf, 'w') as fo:
   fo.write('stationID,abspererr,rmse\n')
@@ -55,6 +90,8 @@ with open(outTWOf, 'w') as fo:
   fo.write('stationID,' + ','.join([key for key in datapts_dict]) + '\n')
   for stationID in datapts_dict['obs']:
     fo.write(stationID + ',' + ','.join([datapts_dict[key][stationID] for key in datapts_dict]) + '\n')
-    
+
+
+
 
 
