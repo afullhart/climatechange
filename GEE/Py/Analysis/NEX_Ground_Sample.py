@@ -3,7 +3,10 @@ ee.Initialize()
 
 path = 'NASA/NEX-DCP30' #'pr kg/m^2/s'
 dataset = ee.ImageCollection(path)
-points = ee.FeatureCollection('users/andrewfullhart/US_CLIGEN_Coords')
+#points = ee.FeatureCollection('users/andrewfullhart/US_CLIGEN_Coords')
+points = ee.FeatureCollection('users/andrewfullhart/GHCNd_Coords')
+#out_description = 'NEX_USCLIGEN_Map_Sample_Annual_Precip'
+out_description = 'NEX_GHCNd_Map_Sample_Annual_Precip'
 
 dataset = ee.ImageCollection(path).select('pr')
 bounds = dataset.geometry().bounds()
@@ -27,13 +30,13 @@ def model_fn(model):
               .filter(ee.Filter.eq('model', model))                             \
               .filter(modelfilter)                                              \
               .select('pr')
-  
+
   def month_fn(month):
     mo_im = ic.filter(ee.Filter.calendarRange(month, month,'month'))            \
               .sum().multiply(86400).divide(40)                                 \
               .multiply(ee.Number(ndays_months.get(ee.Number(month).subtract(1))))
     return mo_im
-  
+
   mo_ic = ee.ImageCollection(order_months.map(month_fn))
   mo_im = mo_ic.sum()
   sample_fc = mo_im.sampleRegions(points, ['stationID'])
@@ -45,7 +48,7 @@ def model_fn(model):
 out_fc = ee.FeatureCollection(models.map(model_fn))
 
 task = ee.batch.Export.table.toDrive(collection=out_fc,
-                           description='NEX_USCLIGEN_Map_Sample_Annual_Precip',
+                           description=out_description,
                            selectors=['md', 'stationID,', 'pr'],
                            folder='GEE_Downloads')
 
