@@ -85,7 +85,7 @@ for i in range(len(model_loop_list)):
         scale=scale,
         maxPixels=1e10)
 
-      avg_prc = mean_dict.get('tmax')
+      avg_prc = mean_dict.get('tasmax')
 
       diff_im = ann_im.subtract(ref_im).divide(ref_im).multiply(100)
       klip_im = diff_im.clip(study_area)
@@ -95,7 +95,7 @@ for i in range(len(model_loop_list)):
         scale=scale,
         maxPixels=1e10)
 
-      avg_rel = mean_dict.get('tmax')
+      avg_rel = mean_dict.get('tasmax')
 
       diff_im = ann_im.subtract(ref_im).pow(2).pow(0.5).divide(ref_im).multiply(100)
       klip_im = diff_im.clip(study_area)
@@ -105,7 +105,7 @@ for i in range(len(model_loop_list)):
         scale=scale,
         maxPixels=1e10)
 
-      avg_abs = mean_dict.get('tmax')
+      avg_abs = mean_dict.get('tasmax')
 
       return ee.List([avg_prc, avg_abs, avg_rel])
 
