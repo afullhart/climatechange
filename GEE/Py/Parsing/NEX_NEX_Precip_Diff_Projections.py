@@ -1,9 +1,21 @@
-from google.colab import drive
-drive.mount('/content/drive')
+import os
 
-with open('/content/drive/My Drive/Colab Notebooks/Script Input Files/NEX_NEX_PRECIP_DIFF_PROJECTIONS.csv') as f:
-  next(f)
-  lines = f.readlines()
+fileDIR = '/content/drive/My Drive/GEE_Downloads'
+parseFILE = '/content/drive/My Drive/Colab Notebooks/NEX_NEX_PRECIP_DIFF_PROJECTIONS_PARSED.csv'
+
+files = os.listdir(fileDIR)
+
+f = open(os.path.join(fileDIR, files[0]))
+hdr_line = f.readline()
+f.close()
+
+lines = []
+lines.append(hdr_line)
+for afile in files:
+  with open(os.path.join(fileDIR, afile)) as f:
+    flines = f.readlines()
+    for line in flines[1:]:
+      lines.append(line)
 
 results_dict = {}
 for line in lines:
@@ -19,7 +31,7 @@ for key in results_dict:
   keys.append(key)
 keys = sorted(keys, key=str.casefold)
 
-with open('/content/drive/My Drive/Colab Notebooks/NEX_NEX_PRECIP_DIFF_PROJECTIONS_PARSED.csv', 'w') as fo:
+with open(parseFILE, 'w') as fo:
   model_string = '_prc,'.join(keys) + '_prc,'
   fo.write(model_string)
   model_string = '_abs,'.join(keys) + '_abs,'
@@ -34,7 +46,7 @@ with open('/content/drive/My Drive/Colab Notebooks/NEX_NEX_PRECIP_DIFF_PROJECTIO
         if key != keys[-1]:
           fo.write(',')
         else:
-          if j != 1:
+          if j != 2:
             fo.write(',')
 
     fo.write('\n')
