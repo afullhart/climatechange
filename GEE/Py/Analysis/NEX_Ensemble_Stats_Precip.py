@@ -48,7 +48,7 @@ for year in global_years_list.getInfo():
 
       def month_fn(month):
         mo_im = model_ic.filter(ee.Filter.calendarRange(month, month,'month'))    \
-                      .sum().multiply(86400).divide(30)                           \
+                      .sum().divide(30).multiply(86400)                           \
                       .multiply(ee.Number(ndays_months.get(ee.Number(month).subtract(1))))
         mo_im = mo_im.clip(study_area)
         return mo_im
