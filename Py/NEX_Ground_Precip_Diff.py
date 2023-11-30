@@ -9,22 +9,15 @@ if os.path.exists(os.path.join(baseDIR, outFOLDER)):
   shutil.rmtree(os.path.join(baseDIR, outFOLDER))
 os.makedirs(os.path.join(baseDIR, outFOLDER))
 
-#usGRNDf = os.path.join(baseDIR, inFOLDER, 'USCLIGEN_Annual_Precip.csv')
-usGRNDf = os.path.join(baseDIR, inFOLDER, 'GHCNd_Annual_Precip.csv')
-#nexf = os.path.join(baseDIR, inFOLDER, 'NEX_USCLIGEN_Map_Sample_Annual_Precip.csv')
-nexf = os.path.join(baseDIR, inFOLDER, 'NEX_GHCNd_Map_Sample_Annual_Precip.csv')
+usGRNDf = os.path.join(baseDIR, inFOLDER, 'USCLIGEN_Annual_Precip.csv')
+#usGRNDf = os.path.join(baseDIR, inFOLDER, 'GHCNd_Annual_Precip.csv')
+nexf = os.path.join(baseDIR, inFOLDER, 'NEX_USCLIGEN_Map_Sample_Annual_Precip.csv')
+#nexf = os.path.join(baseDIR, inFOLDER, 'NEX_GHCNd_Map_Sample_Annual_Precip.csv')
 outONEf = os.path.join(baseDIR, outFOLDER, 'NEX_Ground_Precip_Diff_Results.csv')
 outTWOf = os.path.join(baseDIR, outFOLDER, 'NEX_Ground_Precip_Diff_Datapoints.csv')
 outTHREEf = os.path.join(baseDIR, outFOLDER, 'bad.csv')
 
-#Has missing NEX sample value
-bad_list_one = ['az026132', 'USC00026132']
-#Has suspect NEX sample value
-bad_list_two = ['ut424856','ut428119','ut425182','ut423809','ut420061','ut420072','ut427598','ut429595','ut425186','ut422726','ut422057','ut422385','ut426919','ut421759','ut427271','ut426869','ut428733','ut424467','ut427846']
-bad_list_three = ['USC00422726','USC00424856','USC00426919','USC00422057','USC00425186','USC00425194','USC00420819','USC00429346','USC00428973','USW00024127','USC00420061','USC00421590','USC00425892','USC00427165','USC00427846','USC00424467','USC00427271','USC00420820','USC00429595','USC00421759','USC00425826','USC00427064','USC00428828','USC00428119','USC00423809','USC00421446','USC00429165','USC00425182','USC00420072']
-#Has suspect GHCNd sample value
-bad_list_four = ['USC00027622', 'USC00025418']
-bad_list = bad_list_one + bad_list_two + bad_list_three + bad_list_four
+bad_list = []
 
 stationID_list = []
 us_dict = {}
@@ -59,8 +52,6 @@ for modelID in nex_dict:
   for stationID in stationID_list:
     est = nex_dict[modelID][stationID]
     obs = us_dict[stationID]
-    #if est > 700.:
-      #badd.append(stationID)
     abspererr.append(abs(est-obs)/obs*100)
     sqrerr.append((est-obs)**2)
     datapts_dict[modelID][stationID] = str(est)
@@ -100,7 +91,3 @@ with open(outTHREEf, 'w') as fo:
   print(len(badd))
   fo.write(','.join(badd))
 """
-
-
-
-
