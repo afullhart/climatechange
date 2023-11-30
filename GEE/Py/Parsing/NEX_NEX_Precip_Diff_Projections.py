@@ -5,12 +5,7 @@ parseFILE = '/content/drive/My Drive/Colab Notebooks/NEX_NEX_PRECIP_DIFF_PROJECT
 
 files = os.listdir(fileDIR)
 
-f = open(os.path.join(fileDIR, files[0]))
-hdr_line = f.readline()
-f.close()
-
 lines = []
-lines.append(hdr_line)
 for afile in files:
   with open(os.path.join(fileDIR, afile)) as f:
     flines = f.readlines()
