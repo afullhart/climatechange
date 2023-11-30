@@ -3,10 +3,10 @@ ee.Initialize()
 
 path = 'NASA/NEX-DCP30' #'pr kg/m^2/s'
 dataset = ee.ImageCollection(path)
-#points = ee.FeatureCollection('users/andrewfullhart/US_CLIGEN_Coords')
-points = ee.FeatureCollection('users/andrewfullhart/GHCNd_Coords')
-#out_description = 'NEX_USCLIGEN_Map_Sample_Annual_Precip'
-out_description = 'NEX_GHCNd_Map_Sample_Annual_Precip'
+points = ee.FeatureCollection('users/andrewfullhart/US_CLIGEN_Coords')
+#points = ee.FeatureCollection('users/andrewfullhart/GHCNd_Coords')
+out_description = 'NEX_USCLIGEN_Map_Sample_Annual_Precip'
+#out_description = 'NEX_GHCNd_Map_Sample_Annual_Precip'
 
 dataset = ee.ImageCollection(path).select('pr')
 bounds = dataset.geometry().bounds()
@@ -38,12 +38,11 @@ def model_fn(model):
     return mo_im
 
   mo_ic = ee.ImageCollection(order_months.map(month_fn))
-  ann_im = mo_ic.sum()
-  sample_fc = ann_im.sampleRegions(points, ['stationID'])
+  mo_im = mo_ic.sum()
+  sample_fc = mo_im.sampleRegions(points, ['stationID'], 100)
   stationID_list = sample_fc.aggregate_array('stationID')
   precip_list = sample_fc.aggregate_array('pr')
   return ee.Feature(None,{'md':model, 'stationID':stationID_list, 'pr':precip_list})
-
 
 out_fc = ee.FeatureCollection(models.map(model_fn))
 
