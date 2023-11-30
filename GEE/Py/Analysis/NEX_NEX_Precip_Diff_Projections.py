@@ -22,6 +22,8 @@ model_loop_list = [['ACCESS1-0', 'bcc-csm1-1'],
 
 bounds = nex_set.geometry().bounds()
 proj = nex_set.first().projection()
+scale = 500
+
 start_year = 1974
 end_year = 2013
 start = ee.Date.fromYMD(start_year, 1, 1)
@@ -77,7 +79,7 @@ for i in range(len(model_loop_list)):
       mean_dict = klip_im.reduceRegion(
         reducer=ee.Reducer.mean(),
         geometry=study_area.geometry(),
-        scale=100,
+        scale=scale,
         maxPixels=1e10)
       
       avg_prc = mean_dict.get('pr')
@@ -87,7 +89,7 @@ for i in range(len(model_loop_list)):
       mean_dict = klip_im.reduceRegion(
         reducer=ee.Reducer.mean(),
         geometry=study_area.geometry(),
-        scale=100,
+        scale=scale,
         maxPixels=1e10)
 
       avg_rel = mean_dict.get('pr')
@@ -97,7 +99,7 @@ for i in range(len(model_loop_list)):
       mean_dict = klip_im.reduceRegion(
         reducer=ee.Reducer.mean(),
         geometry=study_area.geometry(),
-        scale=100,
+        scale=scale,
         maxPixels=1e10)
       
       avg_abs = mean_dict.get('pr')
@@ -105,15 +107,17 @@ for i in range(len(model_loop_list)):
       return ee.List([avg_prc, avg_abs, avg_rel])
     
     avgs_arr = ee.Array(years_list.map(year_fn))
-    avg_abs_list = avgs_arr.slice(1, 0, 1).toList().flatten()
-    avg_rel_list = avgs_arr.slice(1, 1, 2).toList().flatten()
-    return ee.Feature(None, {'model':model, 'avg_abs':avg_abs_list, 'avg_rel':avg_rel_list})
+    avg_prc_list = avgs_arr.slice(1, 0, 1).toList().flatten()
+    avg_abs_list = avgs_arr.slice(1, 1, 2).toList().flatten()
+    avg_rel_list = avgs_arr.slice(1, 2, 3).toList().flatten()
+
+    return ee.Feature(None, {'model':model, 'avg_prc':avg_prc_list, 'avg_abs':avg_abs_list, 'avg_rel':avg_rel_list})
   
   out_fc = ee.FeatureCollection(model_list.map(model_fn))
 
   task = ee.batch.Export.table.toDrive(collection=out_fc,
                             description=out_description,
                             folder='GEE_Downloads',
-                            selectors=['model', 'avg_abs', 'avg_rel'])
+                            selectors=['model', 'avg_prc', 'avg_abs', 'avg_rel'])
 
   task.start()
