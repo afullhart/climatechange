@@ -33,7 +33,7 @@ def model_fn(model):
 
   def month_fn(month):
     mo_im = ic.filter(ee.Filter.calendarRange(month, month,'month'))            \
-              .sum().multiply(86400).divide(40)                                 \
+              .sum().divide(40).multiply(86400)                                 \
               .multiply(ee.Number(ndays_months.get(ee.Number(month).subtract(1))))
     return mo_im
 
