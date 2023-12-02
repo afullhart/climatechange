@@ -1,4 +1,4 @@
-var path = 'users/gponce/usda_ars/image_collections/prism800m_monthly_precipitation';
+var path = 'NASA/NEX-DCP30';
 var coarse_image = ee.ImageCollection(path).first();
 var coarseProjection = coarse_image.projection();
 var dem_dataset = ee.Image('USGS/3DEP/10m');
