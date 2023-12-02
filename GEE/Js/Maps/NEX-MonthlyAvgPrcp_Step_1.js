@@ -1,6 +1,6 @@
-var path = 'users/gponce/usda_ars/image_collections/prism800m_monthly_precipitation'; //'b1'
+var path = 'NASA/NEX-DCP30'; //'pr'
 
-var dataset = ee.ImageCollection(path).select('b1');
+var dataset = ee.ImageCollection(path).select('pr');
 var bounds = dataset.geometry().bounds();
 var proj = dataset.first().projection();
 var start_year = 1974;
