@@ -23,7 +23,6 @@ modelfilter = ee.Filter.Or(
 
 ic = ic.filterDate(start, end)
 
-
 ic = ic.filter(ee.Filter.eq('model', model))                                    \
        .filter(modelfilter)                                                     \
        .select('pr')
