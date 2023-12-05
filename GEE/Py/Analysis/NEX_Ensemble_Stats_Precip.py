@@ -69,7 +69,7 @@ for year in global_years_list.getInfo():
       mean_dict = re_im.reduceRegion(
         reducer=ee.Reducer.mean(),
         geometry=study_area.geometry(),
-        scale=700,
+        scale=500,
         maxPixels=1e10)
       avg_stat = mean_dict.get(reducer_str_list.get(re_i))
       return avg_stat
