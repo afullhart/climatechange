@@ -1,4 +1,5 @@
 var path = 'NASA/NEX-DCP30'; //'pr kg/m^2/s'
+var model = 'CCSM4';
 var ic = ee.ImageCollection(path);
 
 var bounds = ic.geometry().bounds();
@@ -14,7 +15,7 @@ var modelfilter = ee.Filter.or(
 var start = ee.Date.fromYMD(1974, 1, 1);
 var end = ee.Date.fromYMD(ee.Number(1974).add(39), 12, 31);
 var ref_ic = ic.filterDate(start, end);
-var ref_ic = ref_ic.filter(ee.Filter.eq('model', 'CCSM4'))
+var ref_ic = ref_ic.filter(ee.Filter.eq('model', model))
                 .filter(modelfilter)
                 .select('pr');
 
@@ -29,7 +30,7 @@ var ref_im = ee.ImageCollection(order_months.map(month_fn)).sum();
 var start = ee.Date.fromYMD(2070, 1, 1);
 var end = ee.Date.fromYMD(ee.Number(2070).add(29), 12, 31);
 var nex_ic = ic.filterDate(start, end);
-var nex_ic = nex_ic.filter(ee.Filter.eq('model', 'CCSM4'))
+var nex_ic = nex_ic.filter(ee.Filter.eq('model', model))
                 .filter(modelfilter)
                 .select('pr');
 
@@ -117,3 +118,4 @@ print(thumbnail);
 print(legendPanel);
 
 Map.addLayer(ee.FeatureCollection('users/andrewfullhart/SW_Study_Area'), null, 'Area');
+
