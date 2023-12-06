@@ -93,7 +93,7 @@ for year in global_years_list.getInfo():
 
 with open(out_file, 'w') as fo:
 
-  fo.write('yr,min,max,q25,q50\n')
+  fo.write('yr,min,max,q25,q75,avg\n')
 
   for d in dict_list:
     yr = str(d['properties']['year'])
