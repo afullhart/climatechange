@@ -12,9 +12,14 @@ model_list = ee.List(['ACCESS1-0', 'bcc-csm1-1', 'BNU-ESM', 'CanESM2', 'CCSM4', 
 ndays_months = ee.List([31, 28.25, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
 order_months = ee.List([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
 
-reducer_list = ee.List([ee.Reducer.percentile([25]), ee.Reducer.percentile([75]), ee.Reducer.min(), ee.Reducer.max()])
-reducer_str_list = ee.List(['tasmax_p25', 'tasmax_p75', 'tasmax_min', 'tasmax_max'])
-reducer_order = ee.List.sequence(0, 3)
+reducer_list = ee.List([ee.Reducer.percentile([25]),
+                        ee.Reducer.percentile([75]),
+                        ee.Reducer.min(),
+                        ee.Reducer.max(),
+                        ee.Reducer.mean()])
+
+reducer_str_list = ee.List(['tasmax_p25', 'tasmax_p75', 'tasmax_min', 'tasmax_max', 'tasmax_mean'])
+reducer_order = ee.List.sequence(0, 4)
 
 start_year = 1985
 end_year = 2070
@@ -77,7 +82,8 @@ for year in global_years_list.getInfo():
                         'q25':stat_list.get(0),
                         'q75':stat_list.get(1),
                         'min':stat_list.get(2),
-                        'max':stat_list.get(3)})
+                        'max':stat_list.get(3),
+                        'avg':stat_list.get(4)})
 
     return out_ft
 
@@ -88,7 +94,7 @@ for year in global_years_list.getInfo():
 
 with open(out_file, 'w') as fo:
 
-  fo.write('yr,min,max,q25,q50\n')
+  fo.write('yr,min,max,q25,q75,avg\n')
 
   for d in dict_list:
     yr = str(d['properties']['year'])
@@ -96,7 +102,11 @@ with open(out_file, 'w') as fo:
     max = str(d['properties']['max'])
     q25 = str(d['properties']['q25'])
     q75 = str(d['properties']['q75'])
+    avg = str(d['properties']['avg'])
 
-    fo.write(','.join([yr, min, max, q25, q75]) + '\n')
+    fo.write(','.join([yr, min, max, q25, q75, avg]) + '\n')
+
+
+
 
 
