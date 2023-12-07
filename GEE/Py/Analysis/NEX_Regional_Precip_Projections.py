@@ -5,7 +5,7 @@ ee.Initialize()
 
 
 fileDIR = '/content/drive/My Drive/GEE_Downloads'
-parseFILE = '/content/drive/My Drive/Colab Notebooks/NEX_NEX_PRECIP_DIFF_PROJECTIONS.csv'
+parseFILE = '/content/drive/My Drive/Colab Notebooks/NEX_REGIONAL_PRECIP_PROJECTIONS.csv'
 
 path = 'NASA/NEX-DCP30'#'pr kg/m^2/s'
 nex_set = ee.ImageCollection(path)
