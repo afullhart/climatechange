@@ -10,7 +10,7 @@ parseFILE = '/content/drive/My Drive/Colab Notebooks/NEX_REGIONAL_PRECIP_PROJECT
 path = 'NASA/NEX-DCP30'#'pr kg/m^2/s'
 nex_set = ee.ImageCollection(path)
 study_area = ee.FeatureCollection('users/andrewfullhart/SW_Study_Area')
-out_description = 'NEX_NEX_PRECIP_DIFF_PROJECTION'
+out_description = 'NEX_REGIONAL_PRECIP_PROJECTIONS'
 
 #model_list = ['ACCESS1-0', 'bcc-csm1-1', 'BNU-ESM', 'CanESM2', 'CCSM4', 'CESM1-BGC', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'GFDL-CM3', 'GFDL-ESM2G', 'GFDL-ESM2M', 'inmcm4', 'IPSL-CM5A-LR', 'IPSL-CM5A-MR', 'MIROC-ESM', 'MIROC-ESM-CHEM', 'MIROC5', 'MPI-ESM-LR', 'MPI-ESM-MR', 'MRI-CGCM3', 'NorESM1-M'];
 
