@@ -4,7 +4,7 @@ import ee
 ee.Initialize()
 
 
-fileDIR = '/content/drive/My Drive/GEE_Downloads'
+fileDIR = '/content/drive/My Drive/GEE_Downloads' #Should be empty to start
 parseFILE = '/content/drive/My Drive/Colab Notebooks/NEX_REGIONAL_TEMP_PROJECTIONS.csv'
 
 path = 'NASA/NEX-DCP30'#'pr kg/m^2/s'
