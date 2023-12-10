@@ -1,11 +1,12 @@
+import time
 import os
 import ee
 ee.Initialize()
 
-path = 'NASA/NEX-DCP30'#'pr kg/m^2/s'
+path = 'NASA/NEX-DCP30'#'tasmax K'
 ic = ee.ImageCollection(path)
-out_description = 'NEX_Regional_Avg_MaxTemp_Tseries'
-model = 'CCSM4' #'CanESM2', 'MIROC5'
+outFILE = '/content/drive/My Drive/Colab Notebooks/NEX_Regional_1Year_MaxTemp_Tseries.csv'
+model_list = ['CCSM4', 'CanESM2', 'MIROC5']
 study_area = ee.FeatureCollection('users/andrewfullhart/SW_Study_Area')
 
 bounds = ic.geometry().bounds()
@@ -23,41 +24,52 @@ modelfilter = ee.Filter.Or(
               ee.Filter.eq('scenario', 'historical'),
               ee.Filter.eq('scenario', 'rcp45'))
 
-ic = ic.filter(ee.Filter.eq('model', model))                                    \
-       .filter(modelfilter)                                                     \
-       .select('tasmax')
+out_dict = {}
+for model in model_list:
 
-def year_fn(year):
+  print(model)
 
-  start = ee.Date.fromYMD(ee.Number(year), 1, 1)
-  end = ee.Date.fromYMD(ee.Number(year), 12, 31)
-  year_ic = ic.filterDate(start, end)
+  model_ic = ic.filter(ee.Filter.eq('model', model))                            \
+               .filter(modelfilter)                                             \
+               .select('tasmax')
 
-  def month_fn(month):
-    mo_im = year_ic.filter(ee.Filter.calendarRange(month, month,'month'))       \
-                  .sum().multiply(ee.Number(ndays_months.get(ee.Number(month).subtract(1))))    \
-                  .divide(365.25)
+  def year_fn(year):
 
-    return mo_im
+    start = ee.Date.fromYMD(ee.Number(year), 1, 1)
+    end = ee.Date.fromYMD(ee.Number(year), 12, 31)
+    year_ic = model_ic.filterDate(start, end)
 
-  ann_im = ee.ImageCollection(order_months.map(month_fn)).sum()
-  ann_im = ann_im.expression('(tmax - 273.15)*(1.8)+32', {'tmax':ann_im.select('tasmax')})
+    def month_fn(month):
+      mo_im = year_ic.filter(ee.Filter.calendarRange(month, month,'month'))     \
+                    .sum().multiply(ee.Number(ndays_months.get(ee.Number(month).subtract(1))))    \
+                    .divide(365.25)
 
-  mean_dict = ann_im.reduceRegion(
-    reducer=ee.Reducer.mean(),
-    geometry=study_area.geometry(),
-    scale=scale,
-    maxPixels=1e10)
-  avg_stat = mean_dict.get('tasmax')
+      return mo_im
 
-  return ee.Feature(None, {'year':ee.Number(year), 'tmax':avg_stat})
+    ann_im = ee.ImageCollection(order_months.map(month_fn)).sum()
+
+    mean_dict = ann_im.reduceRegion(
+      reducer=ee.Reducer.mean(),
+      geometry=study_area.geometry(),
+      scale=scale,
+      maxPixels=1e10)
+    avg_stat = mean_dict.get('tasmax')
+    avg_stat = ee.Number(avg_stat).expression('(tmax - 273.15)*(1.8)+32', {'tmax':avg_stat})
+    
+    return avg_stat
+  
+  model_precip_list = years_list.map(year_fn)
+  out_dict[model] = model_precip_list.getInfo()
 
 
-out_fc = ee.FeatureCollection(years_list.map(year_fn))
+with open(outFILE, 'w') as fo:
+  fo.write('year,CCSM4,CanESM2,MIROC5\n')
+  for i, year in enumerate(years_list.getInfo()):
+    fo.write(str(year) + ',')
+    values = []
+    for model in model_list:
+      value = str(out_dict[model][i])
+      values.append(value)
+    fo.write(','.join(values) + '\n')
 
-task = ee.batch.Export.table.toDrive(collection=out_fc,
-                          description=out_description,
-                          folder='GEE_Downloads',
-                          selectors=['year', 'tmax'])
 
-task.start()
