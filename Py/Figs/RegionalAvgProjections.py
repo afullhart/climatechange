@@ -112,39 +112,39 @@ ax0.set_title('Regional 1-year Annual Precip. (mm)')
 
 ax0.plot([i for i, elem in enumerate(range(1985, 2100))], ccsm4_tseries, color='#1f77b4', label='CCSM4')
 ax0.scatter([i for i, elem in enumerate(range(1985, 2100))], ccsm4_tseries, color='#1f77b4')
-ax0.set_xticks([0, 15, 30, 45, 60, 75, 90, 105, 120])
+ax0.set_xticks([0, 15, 30, 45, 60, 75, 90, 105, 114])
 ax0.set_xticklabels([1985, 2000, 2015, 2030, 2045, 2060, 2075, 2090, 2099])
 y = np.array(ccsm4_tseries)
 x = np.array([i for i, elem in enumerate(range(1985, 2100))])
 res = scipy.stats.linregress(x, y, alternative='greater')
 slope = res.slope
 yint = res.intercept
-ax0.plot([0, 120],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
-ax0.text(116, 400, 'Slope\n{}mm/yr'.format(round(slope, 2)))
+ax0.plot([0, 114],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
+ax0.text(110, 200, 'Slope\n{}mm/yr'.format(round(slope, 2)))
 
 ax1.plot([i for i, elem in enumerate(range(1985, 2100))], canESM2_tseries, color='#ff7f0e', label='CanESM2')
 ax1.scatter([i for i, elem in enumerate(range(1985, 2100))], canESM2_tseries, color='#ff7f0e')
-ax1.set_xticks([0, 15, 30, 45, 60, 75, 90, 105, 120])
+ax1.set_xticks([0, 15, 30, 45, 60, 75, 90, 105, 114])
 ax1.set_xticklabels([1985, 2000, 2015, 2030, 2045, 2060, 2075, 2090, 2099])
 y = np.array(canESM2_tseries)
 x = np.array([i for i, elem in enumerate(range(1985, 2100))])
 res = scipy.stats.linregress(x, y, alternative='greater')
 slope = res.slope
 yint = res.intercept
-ax1.plot([0, 120],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
-ax1.text(116, 400, 'Slope\n{}mm/yr'.format(round(slope, 2)))
+ax1.plot([0, 114],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
+ax1.text(110, 400, 'Slope\n{}mm/yr'.format(round(slope, 2)))
 
 ax2.plot([i for i, elem in enumerate(range(1985, 2100))], miroc5_tseries, color='#2ca02c', label='MIROC5')
 ax2.scatter([i for i, elem in enumerate(range(1985, 2100))], miroc5_tseries, color='#2ca02c')
-ax2.set_xticks([0, 15, 30, 45, 60, 75, 90, 105, 120])
+ax2.set_xticks([0, 15, 30, 45, 60, 75, 90, 105, 114])
 ax2.set_xticklabels([1985, 2000, 2015, 2030, 2045, 2060, 2075, 2090, 2099])
 y = np.array(miroc5_tseries)
 x = np.array([i for i, elem in enumerate(range(1985, 2100))])
 res = scipy.stats.linregress(x, y, alternative='greater')
 slope = res.slope
 yint = res.intercept
-ax2.plot([0, 120],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
-ax2.text(116, 385, 'Slope\n{}mm/yr'.format(round(slope, 2)))
+ax2.plot([0, 114],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
+ax2.text(110, 385, 'Slope\n{}mm/yr'.format(round(slope, 2)))
 
 lines_labels = [ax.get_legend_handles_labels() for ax in fig.axes]
 lines, labels = [sum(lol, []) for lol in zip(*lines_labels)]
@@ -177,39 +177,39 @@ ax0.set_title('Regional 1-year Mean Daily High Temp. (F)')
 
 ax0.plot([i for i, elem in enumerate(range(1985, 2100))], ccsm4_tseries, color='#1f77b4', label='CCSM4')
 ax0.scatter([i for i, elem in enumerate(range(1985, 2100))], ccsm4_tseries, color='#1f77b4')
-ax0.set_xticks([0, 15, 30, 45, 60, 75, 90, 105, 120])
+ax0.set_xticks([0, 15, 30, 45, 60, 75, 90, 105, 114])
 ax0.set_xticklabels([1985, 2000, 2015, 2030, 2045, 2060, 2075, 2090, 2099])
 y = np.array(ccsm4_tseries)
 x = np.array([i for i, elem in enumerate(range(1985, 2100))])
 res = scipy.stats.linregress(x, y, alternative='greater')
 slope = res.slope
 yint = res.intercept
-ax0.plot([0, 120],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
-ax0.text(116, 66, 'Slope\n{}F/yr'.format(round(slope, 2)))
+ax0.plot([0, 114],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
+ax0.text(110, 66, 'Slope\n{}F/yr'.format(round(slope, 2)))
 
 ax1.plot([i for i, elem in enumerate(range(1985, 2100))], canESM2_tseries, color='#ff7f0e', label='CanESM2')
 ax1.scatter([i for i, elem in enumerate(range(1985, 2100))], canESM2_tseries, color='#ff7f0e')
-ax1.set_xticks([0, 15, 30, 45, 60, 75, 90, 105, 120])
+ax1.set_xticks([0, 15, 30, 45, 60, 75, 90, 105, 114])
 ax1.set_xticklabels([1985, 2000, 2015, 2030, 2045, 2060, 2075, 2090, 2099])
 y = np.array(canESM2_tseries)
 x = np.array([i for i, elem in enumerate(range(1985, 2100))])
 res = scipy.stats.linregress(x, y, alternative='greater')
 slope = res.slope
 yint = res.intercept
-ax1.plot([0, 120],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
-ax1.text(116, 66, 'Slope\n{}F/yr'.format(round(slope, 2)))
+ax1.plot([0, 114],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
+ax1.text(110, 66, 'Slope\n{}F/yr'.format(round(slope, 2)))
 
 ax2.plot([i for i, elem in enumerate(range(1985, 2100))], miroc5_tseries, color='#2ca02c', label='MIROC5')
 ax2.scatter([i for i, elem in enumerate(range(1985, 2100))], miroc5_tseries, color='#2ca02c')
-ax2.set_xticks([0, 15, 30, 45, 60, 75, 90, 105, 120])
+ax2.set_xticks([0, 15, 30, 45, 60, 75, 90, 105, 114])
 ax2.set_xticklabels([1985, 2000, 2015, 2030, 2045, 2060, 2075, 2090, 2099])
 y = np.array(miroc5_tseries)
 x = np.array([i for i, elem in enumerate(range(1985, 2100))])
 res = scipy.stats.linregress(x, y, alternative='greater')
 slope = res.slope
 yint = res.intercept
-ax2.plot([0, 120],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
-ax2.text(116, 67, 'Slope\n{}F/yr'.format(round(slope, 2)))
+ax2.plot([0, 114],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
+ax2.text(110, 67, 'Slope\n{}F/yr'.format(round(slope, 2)))
 
 
 lines_labels = [ax.get_legend_handles_labels() for ax in fig.axes]
