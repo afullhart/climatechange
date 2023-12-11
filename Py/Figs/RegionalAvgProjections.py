@@ -28,6 +28,12 @@ mean_tseries = df_ensemble['avg']
 q75_tseries = df_ensemble['q75']
 max_tseries = df_ensemble['max']
 
+y = np.array(ccsm4_tseries)
+x = np.array([i for i, elem in enumerate(range(0, 86))])
+res = scipy.stats.linregress(x, y, alternative='greater')
+slope = res.slope
+print(res)
+
 ax.plot(range(1985, 2071), min_tseries, linestyle='--', color='gray', linewidth=1, label='Ensemble Min/Max')
 ax.plot(range(1985, 2071), mean_tseries, linestyle='--', color='black', linewidth=1, label='Ensemble Mean')
 ax.fill_between(range(1985, 2071), q25_tseries, q75_tseries, linewidth=0, color='#272727', alpha=0.25, label='Ensemble Interquartile Range')
@@ -117,6 +123,7 @@ ax0.set_xticklabels([1985, 2000, 2015, 2030, 2045, 2060, 2075, 2090, 2099])
 y = np.array(ccsm4_tseries)
 x = np.array([i for i, elem in enumerate(range(1985, 2100))])
 res = scipy.stats.linregress(x, y, alternative='greater')
+print(res)
 slope = res.slope
 yint = res.intercept
 ax0.plot([0, 114],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
@@ -129,6 +136,7 @@ ax1.set_xticklabels([1985, 2000, 2015, 2030, 2045, 2060, 2075, 2090, 2099])
 y = np.array(canESM2_tseries)
 x = np.array([i for i, elem in enumerate(range(1985, 2100))])
 res = scipy.stats.linregress(x, y, alternative='greater')
+print(res)
 slope = res.slope
 yint = res.intercept
 ax1.plot([0, 114],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
@@ -140,7 +148,8 @@ ax2.set_xticks([0, 15, 30, 45, 60, 75, 90, 105, 114])
 ax2.set_xticklabels([1985, 2000, 2015, 2030, 2045, 2060, 2075, 2090, 2099])
 y = np.array(miroc5_tseries)
 x = np.array([i for i, elem in enumerate(range(1985, 2100))])
-res = scipy.stats.linregress(x, y, alternative='greater')
+res = scipy.stats.linregress(x, y, alternative='less')
+print(res)
 slope = res.slope
 yint = res.intercept
 ax2.plot([0, 114],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
@@ -182,6 +191,7 @@ ax0.set_xticklabels([1985, 2000, 2015, 2030, 2045, 2060, 2075, 2090, 2099])
 y = np.array(ccsm4_tseries)
 x = np.array([i for i, elem in enumerate(range(1985, 2100))])
 res = scipy.stats.linregress(x, y, alternative='greater')
+print(res)
 slope = res.slope
 yint = res.intercept
 ax0.plot([0, 114],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
@@ -194,6 +204,7 @@ ax1.set_xticklabels([1985, 2000, 2015, 2030, 2045, 2060, 2075, 2090, 2099])
 y = np.array(canESM2_tseries)
 x = np.array([i for i, elem in enumerate(range(1985, 2100))])
 res = scipy.stats.linregress(x, y, alternative='greater')
+print(res)
 slope = res.slope
 yint = res.intercept
 ax1.plot([0, 114],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
@@ -206,6 +217,7 @@ ax2.set_xticklabels([1985, 2000, 2015, 2030, 2045, 2060, 2075, 2090, 2099])
 y = np.array(miroc5_tseries)
 x = np.array([i for i, elem in enumerate(range(1985, 2100))])
 res = scipy.stats.linregress(x, y, alternative='greater')
+print(res)
 slope = res.slope
 yint = res.intercept
 ax2.plot([0, 114],[slope*0 + yint, slope*120 + yint], linestyle='--', color='black', zorder=-999)
