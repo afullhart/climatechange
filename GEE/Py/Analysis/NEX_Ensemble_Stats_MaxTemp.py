@@ -1,5 +1,5 @@
 import ee
-ee.Initialize()
+ee.Initialize(project='ee-andrewfullhart')
 
 ic = ee.ImageCollection('NASA/NEX-DCP30')
 
@@ -8,6 +8,7 @@ out_file = '/content/drive/MyDrive/Colab Notebooks/NEX_Ensemble_Stats_MaxTemps.c
 study_area = ee.FeatureCollection('users/andrewfullhart/SW_Study_Area')
 
 model_list = ee.List(['ACCESS1-0', 'bcc-csm1-1', 'BNU-ESM', 'CanESM2', 'CCSM4', 'CESM1-BGC', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'GFDL-CM3', 'GFDL-ESM2G', 'GFDL-ESM2M', 'inmcm4', 'IPSL-CM5A-LR', 'IPSL-CM5A-MR', 'MIROC-ESM', 'MIROC-ESM-CHEM', 'MIROC5', 'MPI-ESM-LR', 'MPI-ESM-MR', 'MRI-CGCM3', 'NorESM1-M'])
+model_order = ee.List.sequence(0, ee.Number(model_list.size()).subtract(1))
 
 ndays_months = ee.List([31, 28.25, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
 order_months = ee.List([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
@@ -85,16 +86,34 @@ for year in global_years_list.getInfo():
                         'max':stat_list.get(3),
                         'avg':stat_list.get(4)})
 
+
+    ann_ic_list = ann_ic.toList(model_list.size())
+    def reduce_fn(model_i):
+      re_im = ee.Image(ann_ic_list.get(ee.Number(model_i)))
+      mean_dict = re_im.reduceRegion(
+        reducer=ee.Reducer.mean(),
+        geometry=study_area.geometry(),
+        scale=500,
+        maxPixels=1e10)
+      avg_stat = mean_dict.get('tasmax')
+      return avg_stat
+
+    stat_list = model_order.map(reduce_fn)
+
+    out_ft = out_ft.set(ee.Dictionary(model_list.zip(stat_list).flatten()))
     return out_ft
 
   ft_list = years_list.map(year_fn)
+
   ft = ee.Feature(ft_list.get(0))
   print(ft.getInfo())
   dict_list.append(ft.getInfo())
 
 with open(out_file, 'w') as fo:
 
-  fo.write('yr,min,max,q25,q75,avg\n')
+  model_list = model_list.getInfo()
+
+  fo.write('yr,min,max,q25,q75,avg,' + ','.join(model_list) + '\n')
 
   for d in dict_list:
     yr = str(d['properties']['year'])
@@ -104,9 +123,9 @@ with open(out_file, 'w') as fo:
     q75 = str(d['properties']['q75'])
     avg = str(d['properties']['avg'])
 
-    fo.write(','.join([yr, min, max, q25, q75, avg]) + '\n')
+    fo.write(','.join([yr, min, max, q25, q75, avg]))
 
+    for model in model_list:
+      fo.write(',' + str(d['properties'][model]))
 
-
-
-
+    fo.write('\n')
