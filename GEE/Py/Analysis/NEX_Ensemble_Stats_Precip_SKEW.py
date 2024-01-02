@@ -114,7 +114,7 @@ with open(out_file, 'w') as fo:
     q75 = str(d['properties']['q75'])
     avg = str(d['properties']['avg'])
 
-    fo.write(','.join([yr, min, max, q25, q75, avg]) + '\n')
+    fo.write(','.join([yr, min, max, q25, q75, avg]))
 
   for model in model_list:
     fo.write(',' + str(d['properties'][model]))
