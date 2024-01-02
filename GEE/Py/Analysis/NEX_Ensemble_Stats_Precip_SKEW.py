@@ -1,7 +1,6 @@
 import ee
 ee.Initialize(project='ee-andrewfullhart')
 
-
 ic = ee.ImageCollection('NASA/NEX-DCP30')
 
 out_file = '/content/drive/MyDrive/Colab Notebooks/NEX_Ensemble_Stats_Precip_SKEW.csv'
