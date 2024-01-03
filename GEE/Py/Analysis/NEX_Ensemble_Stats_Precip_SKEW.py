@@ -74,7 +74,6 @@ for year in global_years_list.getInfo():
 
     ensemble_ic = ee.ImageCollection(model_list.map(model_fn))
 
-
     def reducer_fn(re_i):
       re_i = ee.Number(re_i)
       re_im = ensemble_ic.reduce(reducer_list.get(re_i))
