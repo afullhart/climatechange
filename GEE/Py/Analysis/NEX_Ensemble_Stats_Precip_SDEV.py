@@ -95,16 +95,33 @@ for year in global_years_list.getInfo():
                         'max':stat_list.get(3),
                         'avg':stat_list.get(4)})
 
+    ensemble_ic_list = ensemble_ic.toList(model_list.size())
+    def reduce_fn(model_i):
+      re_im = ee.Image(ensemble_ic_list.get(ee.Number(model_i)))
+      mean_dict = re_im.reduceRegion(
+        reducer=ee.Reducer.mean(),
+        geometry=study_area.geometry(),
+        scale=500,
+        maxPixels=1e10)
+      avg_stat = mean_dict.get('pr_stdDev')
+      return avg_stat
+
+    stat_list = model_order.map(reduce_fn)
+
+    out_ft = out_ft.set(ee.Dictionary(model_list.zip(stat_list).flatten()))
     return out_ft
 
   ft_list = years_list.map(window_fn)
+
   ft = ee.Feature(ft_list.get(0))
   print(ft.getInfo())
   dict_list.append(ft.getInfo())
 
 with open(out_file, 'w') as fo:
 
-  fo.write('yr,min,max,q25,q75,avg\n')
+  model_list = model_list.getInfo()
+
+  fo.write('yr,min,max,q25,q75,avg,' + ','.join(model_list) + '\n')
 
   for d in dict_list:
     yr = str(d['properties']['year'])
@@ -114,7 +131,7 @@ with open(out_file, 'w') as fo:
     q75 = str(d['properties']['q75'])
     avg = str(d['properties']['avg'])
 
-    fo.write(','.join([yr, min, max, q25, q75, avg]) + '\n')
+    fo.write(','.join([yr, min, max, q25, q75, avg]))
 
     for model in model_list:
       fo.write(',' + str(d['properties'][model]))
