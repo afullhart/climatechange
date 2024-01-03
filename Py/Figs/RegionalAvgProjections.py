@@ -4,22 +4,25 @@ import scipy as scipy
 import numpy as np
 import os
 
-baseFOLDER = '/content/driver/My Drive/Colab Notebooks/Script Input Files'
+baseFOLDER = '/content/drive/My Drive/Colab Notebooks/Script Input Files'
 
-precipEnsembleFILE = os.path.join(baseFOLDER, 'NEX_Ensemble_Stats_Precip.csv')
-tmaxEnsembleFILE = os.path.join(baseFOLDER, 'NEX_Ensemble_Stats_MaxTemps.csv')
-precipTseriesFILE = os.path.join(baseFOLDER, 'NEX_REGIONAL_PRECIP_PROJECTIONS.csv')
-tmaxTseriesFILE = os.path.join(baseFOLDER, 'NEX_REGIONAL_TEMP_PROJECTIONS.csv')
+precipEnsembleFILE = os.path.join(baseFOLDER, 'NEX_Ensemble_Stats_Precip_MEAN.csv')
+tmaxEnsembleFILE = os.path.join(baseFOLDER, 'NEX_Ensemble_Stats_MaxTemps_MEAN.csv')
 precip1yrTseriesFILE = os.path.join(baseFOLDER, 'NEX_Regional_1Year_Precip_Tseries.csv')
 tmax1yrTseriesFILE = os.path.join(baseFOLDER, 'NEX_Regional_1Year_MaxTemp_Tseries.csv')
+precipsdevEnsembleFILE = os.path.join(baseFOLDER, 'NEX_Ensemble_Stats_Precip_SDEV.csv')
+tmaxsdevEnsembleFILE = os.path.join(baseFOLDER, 'NEX_Ensemble_Stats_MaxTemps_SDEV.csv')
+precipskewEnsembleFILE = os.path.join(baseFOLDER, 'NEX_Ensemble_Stats_Precip_SKEW.csv')
+tmaxskewEnsembleFILE = os.path.join(baseFOLDER, 'NEX_Ensemble_Stats_MaxTemps_SKEW.csv')
+
 
 
 fig, ax = plt.subplots(figsize=(15, 5))
 
-df_tseries = pd.read_csv(precipTseriesFILE)
-ccsm4_tseries = df_tseries['CCSM4_prcp']
-canesm2_tseries = df_tseries['CanESM2_prcp']
-miroc5_tseries = df_tseries['MIROC5_prcp']
+df_tseries = pd.read_csv(precipEnsembleFILE)
+ccsm4_tseries = df_tseries['CCSM4']
+canesm2_tseries = df_tseries['CanESM2']
+miroc5_tseries = df_tseries['MIROC5']
 
 df_ensemble = pd.read_csv(precipEnsembleFILE)
 min_tseries = df_ensemble['min']
@@ -60,10 +63,10 @@ fig.show()
 
 fig, ax = plt.subplots(figsize=(15, 5))
 
-df_tseries = pd.read_csv(tmaxTseriesFILE)
-ccsm4_tseries = df_tseries['CCSM4_tmx']
-canesm2_tseries = df_tseries['CanESM2_tmx']
-miroc5_tseries = df_tseries['MIROC5_tmx']
+df_tseries = pd.read_csv(tmaxEnsembleFILE)
+ccsm4_tseries = df_tseries['CCSM4']
+canesm2_tseries = df_tseries['CanESM2']
+miroc5_tseries = df_tseries['MIROC5']
 
 df_ensemble = pd.read_csv(tmaxEnsembleFILE)
 min_tseries = df_ensemble['min']
@@ -228,5 +231,93 @@ lines_labels = [ax.get_legend_handles_labels() for ax in fig.axes]
 lines, labels = [sum(lol, []) for lol in zip(*lines_labels)]
 fig.legend(loc='upper center', bbox_to_anchor=(0.5, 0.05),
            fancybox=True, shadow=True, ncol=6)
+
+fig.show()
+
+
+
+fig, ax = plt.subplots(figsize=(15, 5))
+
+df_tseries = pd.read_csv(precipsdevEnsembleFILE)
+ccsm4_tseries = df_tseries['CCSM4']
+canesm2_tseries = df_tseries['CanESM2']
+miroc5_tseries = df_tseries['MIROC5']
+
+df_ensemble = pd.read_csv(precipsdevEnsembleFILE)
+min_tseries = df_ensemble['min']
+q25_tseries = df_ensemble['q25']
+mean_tseries = df_ensemble['avg']
+q75_tseries = df_ensemble['q75']
+max_tseries = df_ensemble['max']
+
+y = np.array(ccsm4_tseries)
+x = np.array([i for i, elem in enumerate(range(0, 86))])
+res = scipy.stats.linregress(x, y, alternative='greater')
+slope = res.slope
+print(res)
+
+ax.plot(range(1985, 2071), min_tseries, linestyle='--', color='gray', linewidth=1, label='Ensemble Min/Max')
+ax.plot(range(1985, 2071), mean_tseries, linestyle='--', color='black', linewidth=1, label='Ensemble Mean')
+ax.fill_between(range(1985, 2071), q25_tseries, q75_tseries, linewidth=0, color='#272727', alpha=0.25, label='Ensemble Interquartile Range')
+ax.plot(range(1985, 2071), max_tseries, linestyle='--', color='gray', linewidth=1)
+ax.plot(range(1985, 2071), ccsm4_tseries, label='CCSM4')
+ax.plot(range(1985, 2071), canesm2_tseries, label='CanESM2')
+ax.plot(range(1985, 2071), miroc5_tseries, label='MIROC5')
+
+ax.set_title('GCM Ensemble Statistics for Regional Annual Precip. Std. Dev. (30-year Moving Avg.)', size=14)
+ax.set_ylabel('Annual Precip. Std. Dev. (mm)\n', size=12)
+ax.set_xticks([1985, 2000, 2015, 2030, 2045, 2060, 2070])
+
+# Shrink current axis's height by 15% on the bottom
+box = ax.get_position()
+ax.set_position([box.x0, box.y0 + box.height * 0.15,
+                 box.width, box.height * 0.85])
+
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1),
+          fancybox=True, shadow=True, ncol=6)
+
+fig.show()
+
+
+
+fig, ax = plt.subplots(figsize=(15, 5))
+
+df_tseries = pd.read_csv(precipskewEnsembleFILE)
+ccsm4_tseries = df_tseries['CCSM4']
+canesm2_tseries = df_tseries['CanESM2']
+miroc5_tseries = df_tseries['MIROC5']
+
+df_ensemble = pd.read_csv(precipskewEnsembleFILE)
+min_tseries = df_ensemble['min']
+q25_tseries = df_ensemble['q25']
+mean_tseries = df_ensemble['avg']
+q75_tseries = df_ensemble['q75']
+max_tseries = df_ensemble['max']
+
+y = np.array(ccsm4_tseries)
+x = np.array([i for i, elem in enumerate(range(0, 86))])
+res = scipy.stats.linregress(x, y, alternative='greater')
+slope = res.slope
+print(res)
+
+ax.plot(range(1985, 2071), min_tseries, linestyle='--', color='gray', linewidth=1, label='Ensemble Min/Max')
+ax.plot(range(1985, 2071), mean_tseries, linestyle='--', color='black', linewidth=1, label='Ensemble Mean')
+ax.fill_between(range(1985, 2071), q25_tseries, q75_tseries, linewidth=0, color='#272727', alpha=0.25, label='Ensemble Interquartile Range')
+ax.plot(range(1985, 2071), max_tseries, linestyle='--', color='gray', linewidth=1)
+ax.plot(range(1985, 2071), ccsm4_tseries, label='CCSM4')
+ax.plot(range(1985, 2071), canesm2_tseries, label='CanESM2')
+ax.plot(range(1985, 2071), miroc5_tseries, label='MIROC5')
+
+ax.set_title('GCM Ensemble Statistics for Regional Annual Precip. Skewness (30-year Moving Avg.)', size=14)
+ax.set_ylabel('Annual Precip. Skewness\n', size=12)
+ax.set_xticks([1985, 2000, 2015, 2030, 2045, 2060, 2070])
+
+# Shrink current axis's height by 15% on the bottom
+box = ax.get_position()
+ax.set_position([box.x0, box.y0 + box.height * 0.15,
+                 box.width, box.height * 0.85])
+
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1),
+          fancybox=True, shadow=True, ncol=6)
 
 fig.show()
