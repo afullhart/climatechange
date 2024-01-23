@@ -34,7 +34,7 @@ for model in model_list:
   def year_fn(year):
 
     start = ee.Date.fromYMD(ee.Number(year), 1, 1)
-    end = ee.Date.fromYMD(ee.Number(year), 12, 31)
+    end = ee.Date.fromYMD(ee.Number(year).add(1), 1, 1)
     year_ic = model_ic.filterDate(start, end)
 
     def month_fn(month):
