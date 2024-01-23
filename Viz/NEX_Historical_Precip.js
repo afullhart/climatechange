@@ -7,7 +7,7 @@ var proj = dataset.first().projection();
 var start_year = 1974;
 var end_year = 2013;
 var start = ee.Date.fromYMD(start_year, 1, 1);
-var end = ee.Date.fromYMD(end_year, 12, 31);
+var end = ee.Date.fromYMD(end_year+1, 1, 1);
 
 var ndays_months = ee.List([31, 28.25, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]);
 var order_months = ee.List([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
