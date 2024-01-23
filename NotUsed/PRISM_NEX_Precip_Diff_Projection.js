@@ -25,7 +25,7 @@ var proj = pri_set.first().projection();
 var start_year = 1974;
 var end_year = 2013;
 var start = ee.Date.fromYMD(start_year, 1, 1);
-var end = ee.Date.fromYMD(end_year, 12, 31);
+var end = ee.Date.fromYMD(end_year, 1, 1);
 
 var pri_im = pri_set.filterDate(start, end).sum().divide(40);
 
@@ -54,7 +54,7 @@ for (var i=0; i < model_loop_list.length; ++i){
     function year_fn(year){
   
       var start_nested = ee.Date.fromYMD(ee.Number(year), 1, 1);
-      var end_nested = ee.Date.fromYMD(ee.Number(year).add(29), 12, 31);
+      var end_nested = ee.Date.fromYMD(ee.Number(year).add(30), 1, 1);
       var ic_nested = ic.filterDate(start_nested, end_nested);
       function month_fn(month){
         var mo_im = ic_nested.filter(ee.Filter.calendarRange(month, month,'month'))
