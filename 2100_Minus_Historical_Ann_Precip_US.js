@@ -13,7 +13,7 @@ var modelfilter = ee.Filter.or(
                   ee.Filter.eq('scenario', 'rcp45'));
 
 var start = ee.Date.fromYMD(1974, 1, 1);
-var end = ee.Date.fromYMD(ee.Number(1974).add(39), 12, 31);
+var end = ee.Date.fromYMD(ee.Number(1974).add(40), 1, 1);
 var ref_ic = ic.filterDate(start, end);
 var ref_ic = ref_ic.filter(ee.Filter.eq('model', model))
                 .filter(modelfilter)
@@ -28,7 +28,7 @@ function month_fn(month){
 var ref_im = ee.ImageCollection(order_months.map(month_fn)).sum();
 
 var start = ee.Date.fromYMD(2070, 1, 1);
-var end = ee.Date.fromYMD(ee.Number(2070).add(29), 12, 31);
+var end = ee.Date.fromYMD(2070+30, 1, 1);
 var nex_ic = ic.filterDate(start, end);
 var nex_ic = nex_ic.filter(ee.Filter.eq('model', model))
                 .filter(modelfilter)
