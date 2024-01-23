@@ -44,7 +44,7 @@ for year in global_years_list.getInfo():
   def year_fn(year):
 
     start = ee.Date.fromYMD(ee.Number(year), 1, 1)
-    end = ee.Date.fromYMD(ee.Number(year).add(29), 12, 31)
+    end = ee.Date.fromYMD(ee.Number(year).add(30), 1, 1)
     year_ic = ic.filterDate(start, end)
 
     def model_fn(model):
