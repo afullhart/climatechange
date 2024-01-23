@@ -14,7 +14,7 @@ proj = dataset.first().projection()
 start_year = 1974
 end_year = 2013
 start = ee.Date.fromYMD(start_year, 1, 1)
-end = ee.Date.fromYMD(end_year, 12, 31)
+end = ee.Date.fromYMD(end_year+1, 1, 1)
 
 models = ee.List(['ACCESS1-0', 'bcc-csm1-1', 'BNU-ESM', 'CanESM2', 'CCSM4', 'CESM1-BGC', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'GFDL-CM3', 'GFDL-ESM2G', 'GFDL-ESM2M', 'inmcm4', 'IPSL-CM5A-LR', 'IPSL-CM5A-MR', 'MIROC-ESM', 'MIROC-ESM-CHEM', 'MIROC5', 'MPI-ESM-LR', 'MPI-ESM-MR', 'MRI-CGCM3', 'NorESM1-M'])
 
