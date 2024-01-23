@@ -12,7 +12,7 @@ var proj = dataset.first().projection();
 var start_year = 1974;
 var end_year = 2013;
 var start = ee.Date.fromYMD(start_year, 1, 1);
-var end = ee.Date.fromYMD(end_year, 1, 1);
+var end = ee.Date.fromYMD(end_year+1, 1, 1);
 
 var sum_image = dataset.filterDate(start, end).sum().divide(40);
 var sample_fc = sum_image.sampleRegions({collection:points, scale:100});
