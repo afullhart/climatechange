@@ -6,7 +6,7 @@ var proj = dataset.first().projection();
 var start_year = 1974;
 var end_year = 2013;
 var start_date = ee.Date.fromYMD(start_year, 1, 1);
-var end_date = ee.Date.fromYMD(end_year, 1, 1);
+var end_date = ee.Date.fromYMD(end_year+1, 1, 1);
 var date_range = ee.DateRange(start_date, end_date);
 
 var path = 'IDAHO_EPSCOR/TERRACLIMATE';
