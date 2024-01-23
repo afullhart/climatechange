@@ -44,7 +44,7 @@ for year in global_years_list.getInfo():
   def window_fn(winyear):
 
     winstart = ee.Date.fromYMD(ee.Number(winyear), 1, 1)
-    winend = ee.Date.fromYMD(ee.Number(winyear).add(29), 12, 31)
+    winend = ee.Date.fromYMD(ee.Number(winyear).add(30), 1, 1)
     win_ic = ic.filterDate(winstart, winend)
     win_year_list = ee.List.sequence(ee.Number(winyear), ee.Number(winyear).add(29))
 
@@ -56,7 +56,7 @@ for year in global_years_list.getInfo():
       def year_fn(year):
 
         start = ee.Date.fromYMD(ee.Number(year), 1, 1)
-        end = ee.Date.fromYMD(ee.Number(year), 12, 31)
+        end = ee.Date.fromYMD(ee.Number(year).add(1), 1, 1)
         year_ic = model_ic.filterDate(start, end)
 
         def month_fn(month):
