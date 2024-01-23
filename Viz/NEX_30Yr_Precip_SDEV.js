@@ -17,7 +17,7 @@ var ic = ic.filter(modelfilter);
 
 var winyear = start_year;
 var winstart = ee.Date.fromYMD(ee.Number(winyear), 1, 1);
-var winend = ee.Date.fromYMD(ee.Number(winyear).add(29), 12, 31);
+var winend = ee.Date.fromYMD(ee.Number(winyear).add(30), 1, 1);
 var win_ic = ic.filterDate(winstart, winend);
 var win_year_list = ee.List.sequence(ee.Number(winyear), ee.Number(winyear).add(29));
 
@@ -27,7 +27,7 @@ var model_ic = win_ic.filter(ee.Filter.eq('model', model))
 function year_fn(year){
 
   var start = ee.Date.fromYMD(ee.Number(year), 1, 1);
-  var end = ee.Date.fromYMD(ee.Number(year), 12, 31);
+  var end = ee.Date.fromYMD(ee.Number(year).add(1), 1, 1);
   var year_ic = model_ic.filterDate(start, end);
 
   function month_fn(month){
