@@ -33,7 +33,7 @@ function model_fn(model){
                   .select('pr');
 
   var start_nested = ee.Date.fromYMD(1974, 1, 1);
-  var end_nested = ee.Date.fromYMD(2013, 12, 31);
+  var end_nested = ee.Date.fromYMD(2014, 1, 1);
   var ic_nested = ic.filterDate(start_nested, end_nested);
   function month_fn(month){
     var mo_im = ic_nested.filter(ee.Filter.calendarRange(month, month,'month'))
