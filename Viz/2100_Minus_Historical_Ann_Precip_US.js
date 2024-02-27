@@ -44,6 +44,8 @@ var nex_im = ee.ImageCollection(order_months.map(mmmonth_fn)).sum();
 
 var diff_im = nex_im.subtract(ref_im);
 
+var perc_diff_im = diff_im.divide(ref_im).multiply(100.0);
+
 var visParam = {min:0, 
                 max:800,
                 bands:['pr'],
@@ -102,6 +104,8 @@ var legendTitle = ui.Label({
 
 var legendPanel = ui.Panel([legendTitle, colorBar, legendLabels]);
 
+print(legendPanel);
+
 /*
 var geometry = ee.Geometry.Rectangle([-126, 22, -66, 50]);
 var thumbnail = vis_im.getThumbURL({
@@ -115,6 +119,59 @@ var thumbnail = vis_im.getThumbURL({
 print(thumbnail);
 */
 
+
+var visParam = {min:-15, 
+                max:15,
+                bands:['pr'],
+                palette:['blue', 'purple', 'cyan', 'green', 'yellow', 'red']};
+
+
+var vis_im = perc_diff_im.visualize(visParam);
+Map.addLayer(vis_im, null, 'Percent Difference');
+
+
+function makeColorBarParams(palette) {
+  return {
+    bbox:[visParam.min, 0, visParam.max, 0.1],
+    dimensions:'100x10',
+    format:'png',
+    min:visParam.min,
+    max:visParam.max,
+    palette:visParam.palette,
+  };
+}
+
+var colorBar = ui.Thumbnail({
+  image:ee.Image.pixelLonLat().select(0),
+  params:makeColorBarParams(visParam.palette),
+  style:{position: 'bottom-left', stretch: 'horizontal', margin: '0px 8px', maxHeight: '24px'},
+});
+
+var legendLabels = ui.Panel({
+  widgets:[
+    ui.Label(visParam.min, {margin: '4px 8px'}),
+    ui.Label(
+    ((visParam.max-visParam.min) / 4+visParam.min),
+    {margin: '4px 8px', textAlign: 'center', stretch: 'horizontal'}),
+    ui.Label(
+        ((visParam.max-visParam.min) / 2+visParam.min),
+        {margin: '4px 8px', textAlign: 'center', stretch: 'horizontal'}),
+    ui.Label(
+    ((visParam.max-visParam.min) / (4/3)+visParam.min),
+    {margin: '4px 8px', textAlign: 'center', stretch: 'horizontal'}),
+    ui.Label(visParam.max, {margin: '4px 8px'})
+  ],
+  layout:ui.Panel.Layout.flow('horizontal')
+});
+
+var legendTitle = ui.Label({
+  value:'2070-2100 annual precip. relative to historical (%Change)',
+  style:{fontWeight: 'bold'}
+});
+
+var legendPanel = ui.Panel([legendTitle, colorBar, legendLabels]);
+
 print(legendPanel);
+
 
 Map.addLayer(ee.FeatureCollection('users/andrewfullhart/SW_Study_Area'), null, 'Area');
