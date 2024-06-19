@@ -1,4 +1,5 @@
-var maca_im = ee.ImageCollection('NASA/NEX-DCP30').first();
+var nex_im = ee.ImageCollection('NASA/NEX-DCP30').first();
+var scale = nex_im.projection().nominalScale().getInfo();
 
 var ROI = ee.Geometry.Rectangle([-121, 30, -102, 43], 'EPSG:4326', false);
 
@@ -6,8 +7,7 @@ var L8proj = ee.ImageCollection('JAXA/ALOS/AW3D30/V3_2')
         .filterBounds(ROI).first().projection();
 var im = ee.ImageCollection('JAXA/ALOS/AW3D30/V3_2').select('DSM').mosaic().setDefaultProjection(L8proj);
 
-
-var proj = maca_im.projection().getInfo();
+var proj = nex_im.projection().getInfo();
 
 var transform = [
   proj.transform[0],
@@ -27,8 +27,7 @@ var transform_new = [
   proj.transform[5],
 ];
 
-var proj = maca_im.projection();
-
+var proj = nex_im.projection();
 
 var eimage = im;
 var eimage = eimage.resample('bilinear').reproject({crs:proj.crs(), crsTransform:transform_new});
@@ -41,6 +40,8 @@ Export.image.toDrive({
   description:'DEM',
   folder:'GEE_Downloads',
   region:ROI,
-  scale:100,
+  scale:scale,
   crs:'EPSG:4326',
   maxPixels:1e13});
+  
+  
