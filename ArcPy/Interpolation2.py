@@ -8,12 +8,12 @@ elevDIR = r'E:\Grid_Inputs\DEM'
 featDIR = r'E:\Ground_Inputs'
 dataDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\CCSM4\Data'
 gdbDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\CCSM4\CCSM4.gdb'
-#storeshpDIR = r'E:\Study_Area_Shp'
-#maskSHP = os.path.join(dataDIR, 'Study_Area_Shp', 'Study_Area_Shp.shp')
+storeshpDIR = r'E:\Study_Area_Shp'
+maskSHP = os.path.join(dataDIR, 'Study_Area_Shp', 'Study_Area_Shp.shp')
   
 
-#if not os.path.exists(maskSHP):
-#  shutil.copytree(storeshpDIR, os.path.join(dataDIR, 'Study_Area_Shp'))
+if not os.path.exists(maskSHP):
+  shutil.copytree(storeshpDIR, os.path.join(dataDIR, 'Study_Area_Shp'))
 
 
 arcpy.env.workspace = gdbDIR
@@ -88,11 +88,11 @@ for io in map_io_data[:1]:
 
   outExtractByMask = arcpy.sa.ExtractByMask(grids[1].split('\\')[-1].strip('.tif') + '_adj', maskSHP, 'INSIDE')
   outExtractByMask.save(grids[1].split('\\')[-1].strip('.tif') + '_adj')
-   
+
+  arcpy.management.Delete(rasterB.split('\\')[-1].strip('.tif') + '_f')
+  arcpy.management.Delete(rasterC.split('\\')[-1].strip('.tif') + '_f')
   os.remove(rasterB)
   os.remove(rasterC)
   os.remove(rasterD)
-  arcpy.management.Delete(rasterB.split('\\')[-1].strip('.tif') + '_f')
-  arcpy.management.Delete(rasterC.split('\\')[-1].strip('.tif') + '_f')
 
 
