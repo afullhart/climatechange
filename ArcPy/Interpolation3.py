@@ -15,11 +15,9 @@ dataDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\CCSM4\Data'
 gdbDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\CCSM4\CCSM4.gdb'
 storeshpDIR = r'E:\Study_Area_Shp'
 maskSHP = os.path.join(dataDIR, 'Study_Area_Shp', 'Study_Area_Shp.shp')
-  
 
 if not os.path.exists(maskSHP):
   shutil.copytree(storeshpDIR, os.path.join(dataDIR, 'Study_Area_Shp'))
-
 
 arcpy.env.workspace = dataDIR
 arcpy.env.overwriteOutput = True
