@@ -24,7 +24,6 @@ if not os.path.exists(maskSHP):
 arcpy.env.workspace = dataDIR
 arcpy.env.overwriteOutput = True
 arcpy.env.randomGenerator = '123 ACM599'
-#arcpy.SetSeverityLevel(1)
 
 var_labels = ['MX5P']
 covar_labels = ['accm', 'tmax', 'srad']
