@@ -8,14 +8,16 @@ import arcpy
 import pandas as pd
 import numpy as np
 
-storeDIR = r'E:\Grid_Inputs\CCSM4'
+gcmLabel = 'CCSM4'
+
+storeDIR = r'E:\Grid_Inputs\{}'.format(gcmLabel)
 elevDIR = r'E:\Grid_Inputs\DEM'
 featDIR = r'E:\Ground_Inputs'
-dataDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\CCSM4\Data'
-gdbDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\CCSM4\CCSM4.gdb'
+dataDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\{}\Data'.format(gcmLabel)
+gdbDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\{}\{}.gdb'.format(gcmLabel, gcmLabel)
 storeshpDIR = r'E:\Study_Area_Shp'
 maskSHP = os.path.join(dataDIR, 'Study_Area_Shp', 'Study_Area_Shp.shp')
-
+  
 if not os.path.exists(maskSHP):
   shutil.copytree(storeshpDIR, os.path.join(dataDIR, 'Study_Area_Shp'))
 
@@ -38,7 +40,7 @@ for mo in range(1, 13):
     map_io_data.append([ground, grids])
 
 with open(os.path.join(dataDIR, 'GB_CV.csv'), 'w') as fo:
-  fo.write('map,rmse,pbias\n')
+  fo.write('map,rmse,pbias,mape\n')
   for i, io in enumerate(map_io_data):
     
     print('\nITERATION INDEX\n', i, '\n', io)
@@ -166,7 +168,9 @@ with open(os.path.join(dataDIR, 'GB_CV.csv'), 'w') as fo:
       df = pd.read_csv(os.path.join(dataDIR, 'GBfeatures_ExportTable.csv'))
       rmse_diff = np.sqrt(np.mean((df['PREDICTED']-df['DATA'])**2)) 
       pbias_diff = 100*(np.sum(df['DATA'] - df['PREDICTED'])/np.sum(df['DATA']))
-      fo.write('MX5P{}{}'.format(yrs, mo) + ',' + str(rmse_diff) + ',' + str(pbias_diff) + '\n')
+      mape_diff = 100*(1/df['DATA'].loc[df['DATA'] != 0.0].size)*(np.nansum(np.absolute((df['DATA'] - df['PREDICTED'])/(df['DATA'].replace(0.0, np.nan)))))
+                   
+      fo.write('MX5P{}{}'.format(yrs, mo) + ',' + str(rmse_diff) + ',' + str(pbias_diff) + ',' + str(mape_diff) + '\n')
       
     arcpy.stats.PredictUsingSSMFile(
       input_model=os.path.join(dataDIR, 'TrainedModel.ssm'),
@@ -175,7 +179,10 @@ with open(os.path.join(dataDIR, 'GB_CV.csv'), 'w') as fo:
       output_raster=os.path.join(gdbDIR, 'MX5P{}{}'.format(yrs, mo)),
       explanatory_rasters_matching='DEM.tif DEM false;srad{}{}.tif SRAD_1974_2013_{} false;tmax{}{}.tif TMAX_1974_2013_{} false;accm{}{}.tif ACCM_1974_2013_{} false'.format(yrs, mo, mo, yrs, mo, mo, yrs, mo, mo)
     )
-  
+
+    outExtractByMask = arcpy.sa.ExtractByMask(os.path.join(gdbDIR, 'MX5P{}{}'.format(yrs, mo)), maskSHP, 'INSIDE')
+    outExtractByMask.save(os.path.join(gdbDIR, 'MX5P{}{}'.format(yrs, mo)))
+
     arcpy.management.Delete(os.path.join(gdbDIR, 'MX5P_{}_XYTableToPoint'.format(mo)))
     arcpy.management.Delete('GBfeatures.dbf')
     arcpy.management.Delete('GBfeatures_ExportTable.csv')
@@ -194,3 +201,4 @@ with open(os.path.join(dataDIR, 'GB_CV.csv'), 'w') as fo:
       os.remove(a)
       os.remove(b)
       os.remove(c)
+
