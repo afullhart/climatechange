@@ -14,6 +14,12 @@ elevDIR = r'E:\Grid_Inputs\DEM'
 featDIR = r'E:\Ground_Inputs'
 dataDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\{}\Data'.format(gcmLabel)
 gdbDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\{}\{}.gdb'.format(gcmLabel, gcmLabel)
+storeshpDIR = r'E:\Study_Area_Shp'
+maskSHP = os.path.join(dataDIR, 'Study_Area_Shp', 'Study_Area_Shp.shp')
+  
+
+if not os.path.exists(maskSHP):
+  shutil.copytree(storeshpDIR, os.path.join(dataDIR, 'Study_Area_Shp'))
 
 if not os.path.exists(dataDIR):
   os.makedirs(dataDIR)
@@ -37,7 +43,7 @@ for label in var_labels:
     map_io_data.append([ground, covars])
 
 with open(os.path.join(dataDIR, 'EBK_CV.csv'), 'w') as fo:
-  fo.write('map,rmse,pbias\n')
+  fo.write('map,rmse,pbias,mape\n')
   for io in map_io_data:  
     
     ground = io[0]
@@ -77,13 +83,13 @@ with open(os.path.join(dataDIR, 'EBK_CV.csv'), 'w') as fo:
           input_names=['rasterClp'],
           expression='Con(IsNull(rasterClp), rasterClp, rasterClp/rasterClp)'
         )
-        output_raster.save(ground.strip('.txt'))
-        fo.write(ground.strip('.txt') + ',' + str(0.0) + '\n')
+        output_raster.save(ground[:-4])
+        fo.write(ground[:-4] + ',' + str(0.0) + ',' + str(0.0) + ',' + str(0.0) + '\n')
       break
   
     arcpy.management.XYTableToPoint(
       in_table=featA,
-      out_feature_class=ground.strip('.txt') + '_pts',
+      out_feature_class=ground[:-4] + '_pts',
       x_field="x",
       y_field="y",
       z_field=None,
@@ -92,7 +98,7 @@ with open(os.path.join(dataDIR, 'EBK_CV.csv'), 'w') as fo:
   
     with arcpy.EnvManager(outputCoordinateSystem=outputCoordinateSystem, extent=extent, snapRaster=snapRaster, parallelProcessingFactor=parallelProcessingFactor, cellSize=cellSize):
       arcpy.ga.EBKRegressionPrediction(
-        in_features=ground.strip('.txt') + '_pts',
+        in_features=ground[:-4] + '_pts',
         in_explanatory_rasters=[rasterA, rasterB, rasterC, rasterD],
         dependent_field='data',
         out_ga_layer='EBK Regression Prediction',
@@ -116,16 +122,20 @@ with open(os.path.join(dataDIR, 'EBK_CV.csv'), 'w') as fo:
     df = pd.read_csv(os.path.join(dataDIR, 'EBKfeatures_ExportTable.csv'))
     rmse_diff = np.sqrt(np.mean((df['Predicted']-df['Measured'])**2)) 
     pbias_diff = 100*(np.sum(df['Measured'] - df['Predicted'])/np.sum(df['Measured']))
-    fo.write(ground.strip('.txt') + ',' + str(rmse_diff) + ',' + str(pbias_diff) + '\n')
+    mape_diff = 100*(1/df['Measured'].loc[df['Measured'] != 0.0].size)*(np.nansum(np.absolute((df['Measured'] - df['Predicted'])/(df['Measured'].replace(0.0, np.nan)))))            
+    fo.write(ground[:-4] + ',' + str(rmse_diff) + ',' + str(pbias_diff) + ',' + str(mape_diff) + '\n')
   
     with arcpy.EnvManager(outputCoordinateSystem=outputCoordinateSystem, extent=extent, snapRaster=snapRaster, parallelProcessingFactor=parallelProcessingFactor, cellSize=cellSize):
       arcpy.ga.GALayerToGrid(
         in_geostat_layer='EBK Regression Prediction',
-        out_surface_grid=ground.strip('.txt'),
+        out_surface_grid=ground[:-4],
         cell_size=0.008333333333,
         points_per_block_horz=1,
         points_per_block_vert=1
       )
+  
+    outExtractByMask = arcpy.sa.ExtractByMask(ground[:-4], maskSHP, 'INSIDE')
+    outExtractByMask.save(ground[:-4])
   
     arcpy.management.Delete(ground.strip('.txt') + '_pts')
     arcpy.management.Delete('EBKfeatures')
@@ -135,6 +145,7 @@ with open(os.path.join(dataDIR, 'EBK_CV.csv'), 'w') as fo:
     os.remove(rasterB)
     os.remove(rasterC)
     os.remove(rasterD)
+
   
 arcpy.management.Delete(ground.strip('.txt') + '_pts')
 arcpy.management.Delete('EBKfeatures')
