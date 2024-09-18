@@ -7,18 +7,21 @@ import os
 import arcpy
 import numpy as np
 
-storeDIR = r'E:\Grid_Inputs\CCSM4'
+gcmLabel = 'CCSM4'
+
+storeDIR = r'E:\Grid_Inputs\{}'.format(gcmLabel)
 elevDIR = r'E:\Grid_Inputs\DEM'
 featDIR = r'E:\Ground_Inputs'
-dataDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\CCSM4\Data'
-gdbDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\CCSM4\CCSM4.gdb'
+dataDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\{}\Data'.format(gcmLabel)
+gdbDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\{}\{}.gdb'.format(gcmLabel, gcmLabel)
 storeshpDIR = r'E:\Study_Area_Shp'
 maskSHP = os.path.join(dataDIR, 'Study_Area_Shp', 'Study_Area_Shp.shp')
   
-
 if not os.path.exists(maskSHP):
   shutil.copytree(storeshpDIR, os.path.join(dataDIR, 'Study_Area_Shp'))
 
+if not os.path.exists(dataDIR):
+  os.makedirs(dataDIR)
 
 arcpy.env.workspace = gdbDIR
 arcpy.env.overwriteOutput = True
@@ -41,7 +44,7 @@ for i, label in enumerate(var_labels):
 
 
 with open(os.path.join(dataDIR, 'FOCAL_RMSE.csv'), 'w') as fo:
-  fo.write('map,rmse,pbias\n')
+  fo.write('map,rmse,pbias,mape\n')
   for io in map_io_data:
     ground = io[0]
     grids = io[1]
@@ -76,11 +79,11 @@ with open(os.path.join(dataDIR, 'FOCAL_RMSE.csv'), 'w') as fo:
           ignore_nodata='NODATA',
           percentile_value=90
         )
-        out_raster.save(raster.split('\\')[-1].strip('.tif') + '_f')
+        out_raster.save(raster.split('\\')[-1][:-4] + '_f')
 
 
 
-    f_raster_str = raster.split('\\')[-1].strip('.tif') + '_f'
+    f_raster_str = raster.split('\\')[-1][:-4] + '_f'
     sqrerr_raster = arcpy.sa.RasterCalculator(
       rasters=[raster, f_raster_str],
       input_names=['gridt1', 'gridt1f'],
@@ -91,7 +94,6 @@ with open(os.path.join(dataDIR, 'FOCAL_RMSE.csv'), 'w') as fo:
     mse_diff = arcpy.management.GetRasterProperties(sqrerr_raster, 'MEAN')
     mse_diff_str = str(mse_diff)
     rmse_diff = (float(mse_diff_str)**0.5)/25.4
-  
     arcpy.management.Delete('sqrerr')
 
 
@@ -108,34 +110,38 @@ with open(os.path.join(dataDIR, 'FOCAL_RMSE.csv'), 'w') as fo:
     sumerr_diff = np.nansum(err_arr)
     sumobs_diff = np.nansum(obs_arr)
     pbias_diff = 100*(sumerr_diff/sumobs_diff)
-    
+
+    relerr_diff = np.absolute(np.divide(err_arr, obs_arr))
+    mape_diff = 100*(1/obs_arr[obs_arr > 0].size)*np.nansum(relerr_diff)
     arcpy.management.Delete('err')
 
-    fo.write(f_raster_str + ',' + str(rmse_diff) + ',' + str(pbias_diff) + '\n')
 
 
-  
+    fo.write(f_raster_str + ',' + str(rmse_diff) + ',' + str(pbias_diff) + ',' + str(mape_diff) + '\n')
+
+
+
     if 'SKEW' not in ground:
       output_raster = arcpy.sa.RasterCalculator(
-        rasters=[ground, grids[0].split('\\')[-1].strip('.tif') + '_f', grids[1].split('\\')[-1].strip('.tif') + '_f'],
+        rasters=[ground, grids[0].split('\\')[-1][:-4] + '_f', grids[1].split('\\')[-1][:-4] + '_f'],
         input_names=['groundt1', 'gridt1', 'gridt2'],
         expression="(groundt1/(gridt1/25.4))*(gridt2/25.4)"
       )
   
     else:
       output_raster = arcpy.sa.RasterCalculator(
-        rasters=[ground, grids[0].split('\\')[-1].strip('.tif') + '_f', grids[1].split('\\')[-1].strip('.tif') + '_f'],
+        rasters=[ground, grids[0].split('\\')[-1][:-4] + '_f', grids[1].split('\\')[-1][:-4] + '_f'],
         input_names=['groundt1', 'gridt1', 'gridt2'],
         expression="(groundt1/gridt1)*(gridt2)"
       )
     
-    output_raster.save(grids[1].split('\\')[-1].strip('.tif') + '_adj')  
+    output_raster.save(grids[1].split('\\')[-1][:-4] + '_adj')  
   
-    outExtractByMask = arcpy.sa.ExtractByMask(grids[1].split('\\')[-1].strip('.tif') + '_adj', maskSHP, 'INSIDE')
-    outExtractByMask.save(grids[1].split('\\')[-1].strip('.tif') + '_adj')
+    outExtractByMask = arcpy.sa.ExtractByMask(grids[1].split('\\')[-1][:-4] + '_adj', maskSHP, 'INSIDE')
+    outExtractByMask.save(grids[1].split('\\')[-1][:-4] + '_adj')
   
-    arcpy.management.Delete(rasterB.split('\\')[-1].strip('.tif') + '_f')
-    arcpy.management.Delete(rasterC.split('\\')[-1].strip('.tif') + '_f')
+    arcpy.management.Delete(rasterB.split('\\')[-1][:-4] + '_f')
+    arcpy.management.Delete(rasterC.split('\\')[-1][:-4] + '_f')
     os.remove(rasterB)
     if os.path.exists(rasterC):
       os.remove(rasterC)
@@ -144,5 +150,5 @@ with open(os.path.join(dataDIR, 'FOCAL_RMSE.csv'), 'w') as fo:
 for io in map_io_data[:12]:
   ground = io[0]
   grids = io[1]
-  arcpy.management.Delete(grids[0].split('\\')[-1].strip('.tif') + '_adj')
+  arcpy.management.Delete(grids[0].split('\\')[-1][:-4] + '_adj')
 
