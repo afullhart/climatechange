@@ -1,11 +1,10 @@
 ###############################################################################
-'MX5P surfaces from gradient boosting'
+'Future surfaces based on delta method and smoothed focal point surfaces'
 ###############################################################################
 
 import shutil
 import os
 import arcpy
-import pandas as pd
 import numpy as np
 
 gcmLabel = 'CCSM4'
@@ -21,184 +20,128 @@ maskSHP = os.path.join(dataDIR, 'Study_Area_Shp', 'Study_Area_Shp.shp')
 if not os.path.exists(maskSHP):
   shutil.copytree(storeshpDIR, os.path.join(dataDIR, 'Study_Area_Shp'))
 
-arcpy.env.workspace = dataDIR
+if not os.path.exists(dataDIR):
+  os.makedirs(dataDIR)
+
+arcpy.env.workspace = gdbDIR
 arcpy.env.overwriteOutput = True
 arcpy.env.randomGenerator = '123 ACM599'
 
-var_labels = ['MX5P']
-covar_labels = ['accm', 'tmax', 'srad']
-year_labels = ['_1974_2013_', '_2000_2029_', '_2010_2039_', '_2020_2049_', '_2030_2059_', '_2040_2069_', '_2050_2079_', '_2060_2089_', '_2070_2099_']
-
+var_labels = ['mean_', 'sdev_', 'skew_']
+grid_labels = ['mean_', 'sdev_', 'skew_']
+year_labels = ['2000_2029', '2010_2039', '2020_2049', '2030_2059', '2040_2069', '2050_2079', '2060_2089', '2070_2099']
 extent = [43.0, -121.0, -102.0, 30.0]
 
 map_io_data = []
-for mo in range(1, 13):
-  ground = 'MX5P_{}'.format(mo) + '.txt'
+for i, label in enumerate(var_labels):
   for yrlabel in year_labels:
-    grids = [covar + yrlabel + str(mo) + '.tif' for covar in covar_labels]
-    grids.append('DEM.tif')
-    map_io_data.append([ground, grids])
+    for mo in range(1, 13):
+      ground = var_labels[i] + '1974_2013_' + str(mo)
+      grids = [grid_labels[i] + '1974_2013_' + str(mo) + '.tif', grid_labels[i] + yrlabel + '_' + str(mo) + '.tif']
+      map_io_data.append([ground, grids])
 
-with open(os.path.join(dataDIR, 'GB_CV.csv'), 'w') as fo:
+with open(os.path.join(dataDIR, 'FOCAL_RMSE.csv'), 'w') as fo:
   fo.write('map,rmse,pbias,mape\n')
-  for i, io in enumerate(map_io_data):
-    
-    print('\nITERATION INDEX\n', i, '\n', io)
-    
+  for io in map_io_data:
     ground = io[0]
     grids = io[1]
     
-    featAA = os.path.join(featDIR, ground)
-    rasterAA = os.path.join(storeDIR, grids[0])
-    rasterBB = os.path.join(storeDIR, grids[1])
-    rasterCC = os.path.join(storeDIR, grids[2])
-    rasterDD = os.path.join(elevDIR, grids[3])
+    rasterBB = os.path.join(storeDIR, grids[0])
+    rasterCC = os.path.join(storeDIR, grids[1])
+    rasterDD = os.path.join(elevDIR, 'DEM.tif')
     
-    featA = os.path.join(dataDIR, ground)
-    rasterA = os.path.join(dataDIR, grids[0])
-    rasterB = os.path.join(dataDIR, grids[1])
-    rasterC = os.path.join(dataDIR, grids[2])
-    rasterD = os.path.join(dataDIR, grids[3])
-    
-    shutil.copyfile(featAA, featA)
-    shutil.copyfile(rasterAA, rasterA)
+    rasterB = os.path.join(dataDIR, grids[0])
+    rasterC = os.path.join(dataDIR, grids[1])
+    rasterD = os.path.join(dataDIR, 'DEM.tif')
+  
+    print(rasterB)
+    print(rasterC)
+    print(rasterD)
+  
     shutil.copyfile(rasterBB, rasterB)
     shutil.copyfile(rasterCC, rasterC)
     shutil.copyfile(rasterDD, rasterD)
+  
+    for raster in [rasterB, rasterC]:
+  
+      outputCoordinateSystem='GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
+      snapRaster=rasterD
+      extent='-121.0 30.0 -102.0 43.0 GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
+      cellSize=0.008333333333
+      with arcpy.EnvManager(outputCoordinateSystem=outputCoordinateSystem, snapRaster=snapRaster, extent=extent, cellSize=cellSize):
+        out_raster = arcpy.sa.FocalStatistics(
+          in_raster=raster,
+          neighborhood='Circle 7 CELL',
+          statistics_type='MEDIAN',
+          ignore_nodata='NODATA',
+          percentile_value=90
+        )
+        out_raster.save(raster.split('\\')[-1][:-4] + '_f')
 
-    mo = 1 + int((i)/9)
-    yrs_i = int((i) % 9)
-    yrs = year_labels[yrs_i]
+
+
+    f_raster_str = raster.split('\\')[-1][:-4] + '_f'
+    sqrerr_raster = arcpy.sa.RasterCalculator(
+      rasters=[raster, f_raster_str],
+      input_names=['gridt1', 'gridt1f'],
+      expression='(gridt1 - gridt1f)**2'
+    )
+  
+    sqrerr_raster.save('sqrerr')
+    mse_diff = arcpy.management.GetRasterProperties(sqrerr_raster, 'MEAN')
+    mse_diff_str = str(mse_diff)
+    rmse_diff = (float(mse_diff_str)**0.5)/25.4
+    arcpy.management.Delete('sqrerr')
+
+
+
+    err_raster = arcpy.sa.RasterCalculator(
+      rasters=[raster, f_raster_str],
+      input_names=['gridt1', 'gridt1f'],
+      expression='(gridt1 - gridt1f)'
+    )
     
-    if yrs == '_1974_2013_':
-      
-      arcpy.management.XYTableToPoint(
-        in_table=featA,
-        out_feature_class=os.path.join(gdbDIR, 'MX5P_{}_XYTableToPoint'.format(mo)),
-        x_field='x',
-        y_field='y',
-        z_field=None,
-        coordinate_system='GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]];-400 -400 1000000000;-100000 10000;-100000 10000;8.98315284119521E-09;0.001;0.001;IsHighPrecision'
+    err_raster.save('err')
+    err_arr = arcpy.RasterToNumPyArray('err')
+    obs_arr = arcpy.RasterToNumPyArray(raster)
+    sumerr_diff = np.nansum(err_arr)
+    sumobs_diff = np.nansum(obs_arr)
+    pbias_diff = 100*(sumerr_diff/sumobs_diff)
+
+    relerr_diff = np.absolute(np.divide(err_arr, obs_arr))
+    mape_diff = 100*(1/obs_arr[obs_arr > 0].size)*np.nansum(relerr_diff)
+    arcpy.management.Delete('err')
+
+
+
+    fo.write(f_raster_str + ',' + str(rmse_diff) + ',' + str(pbias_diff) + ',' + str(mape_diff) + '\n')
+
+
+
+    if 'skew' not in ground:
+      output_raster = arcpy.sa.RasterCalculator(
+        rasters=[ground, grids[0].split('\\')[-1][:-4] + '_f', grids[1].split('\\')[-1][:-4] + '_f'],
+        input_names=['groundt1', 'gridt1', 'gridt2'],
+        expression='(groundt1/(gridt1/25.4))*(gridt2/25.4)'
       )
   
-      arcpy.stats.Forest(
-        prediction_type='TRAIN',
-        in_features=os.path.join(gdbDIR, 'MX5P_{}_XYTableToPoint'.format(mo)),
-        variable_predict='data',
-        treat_variable_as_categorical=None,
-        explanatory_variables=None,
-        distance_features=None,
-        explanatory_rasters='DEM.tif #;srad_1974_2013_{}.tif #;tmax_1974_2013_{}.tif #;accm_1974_2013_{}.tif #'.format(mo, mo, mo),
-        features_to_predict=None,
-        output_features=None,
-        output_raster=None,
-        output_trained_features=None,
-        output_importance_table=None,
-        use_raster_values='TRUE',
-        number_of_trees=100,
-        minimum_leaf_size=5,
-        maximum_depth=10,
-        sample_size=100,
-        random_variables=None,
-        percentage_for_training=10,
-        output_classification_table=None,
-        output_validation_table=None,
-        number_validation_runs=10,
-        calculate_uncertainty='FALSE',
-        output_trained_model=os.path.join(dataDIR, 'TrainedModel.ssm'),
-        model_type='GRADIENT_BOOSTED',
-        reg_lambda=1,
-        gamma=0,
-        eta=0.1,
-        max_bins=0,
-        optimize='TRUE',
-        optimize_algorithm='RANDOM',
-        optimize_target='R2',
-        num_search=10,
-        model_param_setting='NUM_TREES 100 1000 5',
-        output_param_tuning_table=None
-      )
-    
-      message = arcpy.GetMessages()
-      os.remove(os.path.join(dataDIR, 'TrainedModel.ssm'))
-      message_part2 = message.split('was approximately reached at seed')[1]
-      seed_str = message_part2.split('\n')[0].lstrip()
-      n_trees = int([s.split()[-1] for s in message.split('\n') if s[:15] == 'Number of Trees'][0])
-      
-      arcpy.env.randomGenerator = '{} ACM599'.format(seed_str)
-    
-      arcpy.stats.Forest(
-        prediction_type='TRAIN',
-        in_features=os.path.join(gdbDIR, 'MX5P_{}_XYTableToPoint'.format(mo)),
-        variable_predict='data',
-        treat_variable_as_categorical=None,
-        explanatory_variables=None,
-        distance_features=None,
-        explanatory_rasters='DEM.tif #;srad_1974_2013_{}.tif #;tmax_1974_2013_{}.tif #;accm_1974_2013_{}.tif #'.format(mo, mo, mo),
-        features_to_predict=None,
-        output_features=None,
-        output_raster=None,
-        output_trained_features='GBfeatures',
-        output_importance_table=None,
-        use_raster_values='TRUE',
-        number_of_trees=n_trees,
-        minimum_leaf_size=5,
-        maximum_depth=10,
-        sample_size=100,
-        random_variables=None,
-        percentage_for_training=10,
-        output_classification_table=None,
-        output_validation_table=None,
-        number_validation_runs=1,
-        calculate_uncertainty='FALSE',
-        output_trained_model=os.path.join(dataDIR, 'TrainedModel.ssm'),
-        model_type='GRADIENT_BOOSTED',
-        reg_lambda=1,
-        gamma=0,
-        eta=0.1,
-        max_bins=0,
-        optimize='FALSE'
-      )
-    
-      arcpy.conversion.ExportTable(
-        in_table='GBfeatures', 
-        out_table=os.path.join(dataDIR, 'GBfeatures_ExportTable.csv'), 
-      )
-      
-      df = pd.read_csv(os.path.join(dataDIR, 'GBfeatures_ExportTable.csv'))
-      rmse_diff = np.sqrt(np.mean((df['PREDICTED']-df['DATA'])**2)) 
-      pbias_diff = 100*(np.sum(df['DATA'] - df['PREDICTED'])/np.sum(df['DATA']))
-      mape_diff = 100*(1/df['DATA'].loc[df['DATA'] != 0.0].size)*(np.nansum(np.absolute((df['DATA'] - df['PREDICTED'])/(df['DATA'].replace(0.0, np.nan)))))
-                   
-      fo.write('MX5P{}{}'.format(yrs, mo) + ',' + str(rmse_diff) + ',' + str(pbias_diff) + ',' + str(mape_diff) + '\n')
-      
-    arcpy.stats.PredictUsingSSMFile(
-      input_model=os.path.join(dataDIR, 'TrainedModel.ssm'),
-      prediction_type='PREDICT_RASTER',
-      features_to_predict=None,
-      output_raster=os.path.join(gdbDIR, 'MX5P{}{}'.format(yrs, mo)),
-      explanatory_rasters_matching='DEM.tif DEM false;srad{}{}.tif SRAD_1974_2013_{} false;tmax{}{}.tif TMAX_1974_2013_{} false;accm{}{}.tif ACCM_1974_2013_{} false'.format(yrs, mo, mo, yrs, mo, mo, yrs, mo, mo)
-    )
-
-    outExtractByMask = arcpy.sa.ExtractByMask(os.path.join(gdbDIR, 'MX5P{}{}'.format(yrs, mo)), maskSHP, 'INSIDE')
-    outExtractByMask.save(os.path.join(gdbDIR, 'MX5P{}{}'.format(yrs, mo)))
-
-    arcpy.management.Delete(os.path.join(gdbDIR, 'MX5P_{}_XYTableToPoint'.format(mo)))
-    arcpy.management.Delete('GBfeatures.dbf')
-    arcpy.management.Delete('GBfeatures_ExportTable.csv')
-    os.remove(featA)
-    os.remove(rasterD)
-    
-    if yrs != '_1974_2013_':
-      os.remove(rasterA)
-      os.remove(rasterB)
-      os.remove(rasterC)
     else:
-      a, b, c = [rasterA, rasterB, rasterC]
+      output_raster = arcpy.sa.RasterCalculator(
+        rasters=[ground, grids[0].split('\\')[-1][:-4] + '_f', grids[1].split('\\')[-1][:-4] + '_f'],
+        input_names=['groundt1', 'gridt1', 'gridt2'],
+        expression='(groundt1/gridt1)*(gridt2)'
+      )
     
-    if yrs == '_2070_2099_':
-      os.remove(os.path.join(dataDIR, 'TrainedModel.ssm'))
-      os.remove(a)
-      os.remove(b)
-      os.remove(c)
+    output_raster.save(grids[1].split('\\')[-1][:-4])  
+  
+    outExtractByMask = arcpy.sa.ExtractByMask(grids[1].split('\\')[-1][:-4], maskSHP, 'INSIDE')
+    outExtractByMask.save(grids[1].split('\\')[-1][:-4])
+  
+    arcpy.management.Delete(rasterB.split('\\')[-1][:-4] + '_f')
+    arcpy.management.Delete(rasterC.split('\\')[-1][:-4] + '_f')
+    os.remove(rasterB)
+    if os.path.exists(rasterC):
+      os.remove(rasterC)
+    os.remove(rasterD)
+
 
