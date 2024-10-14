@@ -177,10 +177,9 @@ with open(os.path.join(dataDIR, 'GB_CV.csv'), 'w') as fo:
     outExtractByMask = arcpy.sa.ExtractByMask(os.path.join(gdbDIR, 'MX5P{}{}'.format(yrs, mo)), maskSHP, 'INSIDE')
     outExtractByMask.save(os.path.join(gdbDIR, 'mx5p{}{}'.format(yrs, mo)))
 
-    arcpy.management.Delete(os.path.join(gdbDIR, 'MX5P_{}_XYTableToPoint'.format(mo)))
-    arcpy.management.Delete('GBfeatures')
-    os.remove(os.path.join(dataDIR, 'GBfeatures_ExportTable.csv'))
-    os.remove(featA)
-    os.remove(rasterD)
+  arcpy.management.Delete(os.path.join(gdbDIR, 'MX5P_{}_XYTableToPoint'.format(mo)))
+  arcpy.management.Delete('GBfeatures')
+  os.remove(os.path.join(dataDIR, 'GBfeatures_ExportTable.csv'))
+  os.remove(featA)
+  os.remove(rasterD)
     
-
