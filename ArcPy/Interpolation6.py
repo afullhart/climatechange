@@ -15,6 +15,7 @@ year_labels = ['1974_2013', '2000_2029', '2010_2039', '2020_2049', '2030_2059', 
 historical_var_labels = ['ratio', 'timepk']
 
 for varlb in var_labels:
+  print(varlb)
   for yrlb in year_labels:
     rasters = []
     for mo in range(1, 13):
@@ -26,6 +27,7 @@ for varlb in var_labels:
       arcpy.management.Delete(raster)
 
 for varlb in historical_var_labels:
+  print(varlb)
   rasters = []
   for mo in range(1, 13):
     raster_name = '{}_1974_2013_{}'.format(varlb, str(mo))
@@ -35,6 +37,3 @@ for varlb in historical_var_labels:
   for raster in rasters:
     arcpy.management.Delete(raster)
     
-
-
-
