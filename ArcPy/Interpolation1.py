@@ -25,7 +25,7 @@ arcpy.env.workspace = dataDIR
 arcpy.env.overwriteOutput = True
 
 
-var_labels = ['accm', 'tmax', 'txsd', 'tmin', 'tnsd', 'tdew', 'srad', 'srsd']
+var_labels = ['accm', 'tmax', 'tmin', 'txsd', 'tnsd', 'tdew', 'srad', 'srsd']
 year_labels = ['_1974_2013_', '_2000_2029_', '_2010_2039_', '_2020_2049_', '_2030_2059_', '_2040_2069_', '_2050_2079_', '_2060_2089_', '_2070_2099_']
 
 extent = [43.0, -121.0, -102.0, 30.0]
@@ -54,5 +54,4 @@ for grid in map_io_data:
   outExtractByMask.save(os.path.join(gdbDIR, grid[:-4]))
 
   os.remove(rasterA)
-
 
