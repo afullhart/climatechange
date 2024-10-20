@@ -26,7 +26,7 @@ arcpy.env.overwriteOutput = True
 
 
 var_labels = ['accm', 'tmax', 'tmin', 'txsd', 'tnsd', 'tdew', 'srad', 'srsd']
-year_labels = ['_1974_2013_', '_2000_2029_', '_2010_2039_', '_2020_2049_', '_2030_2059_', '_2040_2069_', '_2050_2079_', '_2060_2089_', '_2070_2099_']
+year_labels = ['1974_2013', '2000_2029', '2010_2039', '2020_2049', '2030_2059', '2040_2069', '2050_2079', '2060_2089', '2070_2099']
 
 extent = [43.0, -121.0, -102.0, 30.0]
 
@@ -34,7 +34,7 @@ map_io_data = []
 for mo in range(1, 13):
   for yrlabel in year_labels:
       for varlabel in var_labels:
-        grid = varlabel + yrlabel + str(mo) + '.tif'
+        grid = varlabel + '_' + yrlabel + '_' + str(mo) + '.tif'
         map_io_data.append(grid)
 
 for grid in map_io_data:
@@ -54,4 +54,5 @@ for grid in map_io_data:
   outExtractByMask.save(os.path.join(gdbDIR, grid[:-4]))
 
   os.remove(rasterA)
+
 
