@@ -44,7 +44,7 @@ for label in var_labels:
 
 with open(os.path.join(dataDIR, 'EBK_CV.csv'), 'w') as fo:
   fo.write('map,rmse,pbias,mape\n')
-  for io in map_io_data[36:48]:  
+  for io in map_io_data:  
     
     ground = io[0]
     covars = io[1]
@@ -157,5 +157,4 @@ arcpy.management.Delete('EBKfeatures')
 arcpy.management.Delete(os.path.join(dataDIR, 'EBKfeatures_ExportTable.csv'))
 os.remove(featA)
 os.remove(rasterD)
-  
 
