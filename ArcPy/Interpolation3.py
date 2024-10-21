@@ -27,8 +27,8 @@ arcpy.env.workspace = gdbDIR
 arcpy.env.overwriteOutput = True
 arcpy.env.randomGenerator = '123 ACM599'
 
-var_labels = ['mean_', 'sdev_', 'skew_']
-grid_labels = ['mean_', 'sdev_', 'skew_']
+var_labels = ['mean', 'sdev', 'skew']
+grid_labels = ['mean', 'sdev', 'skew']
 year_labels = ['2000_2029', '2010_2039', '2020_2049', '2030_2059', '2040_2069', '2050_2079', '2060_2089', '2070_2099']
 extent = [43.0, -121.0, -102.0, 30.0]
 
@@ -36,8 +36,8 @@ map_io_data = []
 for i, label in enumerate(var_labels):
   for yrlabel in year_labels:
     for mo in range(1, 13):
-      ground = var_labels[i] + '1974_2013_' + str(mo)
-      grids = [grid_labels[i] + '1974_2013_' + str(mo) + '.tif', grid_labels[i] + yrlabel + '_' + str(mo) + '.tif']
+      ground = var_labels[i] + '_1974_2013_' + str(mo)
+      grids = [grid_labels[i] + '_1974_2013_' + str(mo) + '.tif', grid_labels[i] + '_' + yrlabel + '_' + str(mo) + '.tif']
       map_io_data.append([ground, grids])
 
 with open(os.path.join(dataDIR, 'FOCAL_RMSE.csv'), 'w') as fo:
@@ -79,7 +79,6 @@ with open(os.path.join(dataDIR, 'FOCAL_RMSE.csv'), 'w') as fo:
         out_raster.save(raster.split('\\')[-1][:-4] + '_f')
 
 
-
     f_raster_str = raster.split('\\')[-1][:-4] + '_f'
     sqrerr_raster = arcpy.sa.RasterCalculator(
       rasters=[raster, f_raster_str],
@@ -92,7 +91,6 @@ with open(os.path.join(dataDIR, 'FOCAL_RMSE.csv'), 'w') as fo:
     mse_diff_str = str(mse_diff)
     rmse_diff = (float(mse_diff_str)**0.5)/25.4
     arcpy.management.Delete('sqrerr')
-
 
 
     err_raster = arcpy.sa.RasterCalculator(
@@ -113,9 +111,7 @@ with open(os.path.join(dataDIR, 'FOCAL_RMSE.csv'), 'w') as fo:
     arcpy.management.Delete('err')
 
 
-
     fo.write(f_raster_str + ',' + str(rmse_diff) + ',' + str(pbias_diff) + ',' + str(mape_diff) + '\n')
-
 
 
     if 'skew' not in ground:
@@ -143,5 +139,4 @@ with open(os.path.join(dataDIR, 'FOCAL_RMSE.csv'), 'w') as fo:
     if os.path.exists(rasterC):
       os.remove(rasterC)
     os.remove(rasterD)
-
 
