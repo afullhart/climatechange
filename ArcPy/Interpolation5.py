@@ -25,7 +25,7 @@ arcpy.env.workspace = gdbDIR
 arcpy.env.overwriteOutput = True
 
 var_labels = ['accm', 'mean', 'ratio']
-year_labels = ['_1974_2013_', '_2000_2029_', '_2010_2039_', '_2020_2049_', '_2030_2059_', '_2040_2069_', '_2050_2079_', '_2060_2089_', '_2070_2099_']
+year_labels = ['1974_2013', '2000_2029', '2010_2039', '2020_2049', '2030_2059', '2040_2069', '2050_2079', '2060_2089', '2070_2099']
 
 extent = [43.0, -121.0, -102.0, 30.0]
 
@@ -48,10 +48,10 @@ for io in map_io_data:
 
   with arcpy.EnvManager(outputCoordinateSystem=outputCoordinateSystem, extent=extent, parallelProcessingFactor=parallelProcessingFactor):
 
-    accm = 'accm{}{}'.format(yrlabel, str(mo))
-    mean = 'mean{}{}'.format(yrlabel, str(mo))
+    accm = 'accm_{}_{}'.format(yrlabel, str(mo))
+    mean = 'mean_{}_{}'.format(yrlabel, str(mo))
     ratio = 'ratio_1974_2013_{}'.format(str(mo))
-    pwd = 'pwd{}{}'.format(yrlabel, str(mo))
+    pwd = 'pwd_{}_{}'.format(yrlabel, str(mo))
     
     output_raster = arcpy.sa.RasterCalculator(
       rasters=[accm, mean, ratio],
@@ -59,7 +59,7 @@ for io in map_io_data:
       expression='Con(IsNull(accm), accm, 1/((1/(((accm/25.4)/mean)/{})) + ratio - 1))'.format(str(ndays[mo-1]))
     )
 
-    output_raster.save('pwd{}{}'.format(yrlabel, str(mo)))
+    output_raster.save('pwd_{}_{}'.format(yrlabel, str(mo)))
 
     output_raster = arcpy.sa.RasterCalculator(
       rasters=[accm, pwd, ratio],
@@ -67,7 +67,5 @@ for io in map_io_data:
       expression='Con(IsNull(accm), accm, ratio*pwd)'
     )
 
-    output_raster.save('pww{}{}'.format(yrlabel, str(mo)))
-
-
+    output_raster.save('pww_{}_{}'.format(yrlabel, str(mo)))
 
