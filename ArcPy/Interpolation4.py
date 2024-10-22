@@ -1,4 +1,3 @@
-
 ###############################################################################
 'MX5P surfaces from gradient boosting'
 ###############################################################################
@@ -22,7 +21,7 @@ maskSHP = os.path.join(dataDIR, 'Study_Area_Shp', 'Study_Area_Shp.shp')
 if not os.path.exists(maskSHP):
   shutil.copytree(storeshpDIR, os.path.join(dataDIR, 'Study_Area_Shp'))
 
-arcpy.env.workspace = gdbDIR
+arcpy.env.workspace = dataDIR
 arcpy.env.overwriteOutput = True
 arcpy.env.randomGenerator = '123 ACM599'
 
@@ -34,17 +33,11 @@ extent = [43.0, -121.0, -102.0, 30.0]
 
 map_io_data = []
 for mo in range(1, 13):
-  ground = 'MX5P_{}'.format(mo) + '.txt'
+  ground = 'MX5P_{}'.format(mo)
   for yrlabel in year_labels:
     covars = [var + '_' + yrlabel + '_' + str(mo) for var in covar_labels]
     map_io_data.append([ground, covars])
 
-rasterD = os.path.join(dataDIR, 'DEM.tif')
-outputCoordinateSystem = 'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
-snapRaster = rasterD
-parallelProcessingFactor = '5'
-extent = '-121.0 30.0 -102.0 43.0 GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
-cellSize = rasterD
 
 with open(os.path.join(dataDIR, 'GB_CV.csv'), 'w') as fo:
   fo.write('map,rmse,pbias,mape\n')
@@ -55,21 +48,34 @@ with open(os.path.join(dataDIR, 'GB_CV.csv'), 'w') as fo:
     ground = io[0]
     covars = io[1]
     
-    featAA = os.path.join(featDIR, ground)
+    
+    featAA = os.path.join(featDIR, ground + '.txt')    
+    rasterAA = os.path.join(storeDIR, covars[0] + '.tif')
+    rasterBB = os.path.join(storeDIR, covars[1] + '.tif')
+    rasterCC = os.path.join(storeDIR, covars[2] + '.tif')
     rasterDD = os.path.join(elevDIR, 'DEM.tif')
     
-    featA = os.path.join(dataDIR, ground)
-    rasterA = covars[0]
-    rasterB = covars[1]
-    rasterC = covars[2]
+    featA = os.path.join(dataDIR, ground + '.txt')
+    rasterA = os.path.join(dataDIR, covars[0] + '.tif')
+    rasterB = os.path.join(dataDIR, covars[1] + '.tif')
+    rasterC = os.path.join(dataDIR, covars[2] + '.tif')
     rasterD = os.path.join(dataDIR, 'DEM.tif')
     
     shutil.copyfile(featAA, featA)
+    shutil.copyfile(rasterAA, rasterA)
+    shutil.copyfile(rasterBB, rasterB)
+    shutil.copyfile(rasterCC, rasterC)
     shutil.copyfile(rasterDD, rasterD)
-
+    
     mo = 1 + int((i)/9)
     yrs_i = int((i) % 9)
     yrs = year_labels[yrs_i]
+    
+    outputCoordinateSystem = 'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
+    snapRaster = rasterD
+    parallelProcessingFactor = '5'
+    extent = '-121.0 30.0 -102.0 43.0 GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
+    cellSize = rasterD
     
     if yrs == '1974_2013':
       
@@ -91,7 +97,7 @@ with open(os.path.join(dataDIR, 'GB_CV.csv'), 'w') as fo:
           treat_variable_as_categorical=None,
           explanatory_variables=None,
           distance_features=None,
-          explanatory_rasters='srad_1974_2013_{} #;tmax_1974_2013_{} #;accm_1974_2013_{} #'.format(mo, mo, mo),
+          explanatory_rasters='srad_1974_2013_{}.tif #;tmax_1974_2013_{}.tif #;accm_1974_2013_{}.tif #'.format(mo, mo, mo),
           features_to_predict=None,
           output_features=None,
           output_raster=None,
@@ -137,7 +143,7 @@ with open(os.path.join(dataDIR, 'GB_CV.csv'), 'w') as fo:
           treat_variable_as_categorical=None,
           explanatory_variables=None,
           distance_features=None,
-          explanatory_rasters='srad_1974_2013_{} #;tmax_1974_2013_{} #;accm_1974_2013_{} #'.format(mo, mo, mo),
+          explanatory_rasters='srad_1974_2013_{}.tif #;tmax_1974_2013_{}.tif #;accm_1974_2013_{}.tif #'.format(mo, mo, mo),
           features_to_predict=None,
           output_features=None,
           output_raster=None,
@@ -182,7 +188,7 @@ with open(os.path.join(dataDIR, 'GB_CV.csv'), 'w') as fo:
         prediction_type='PREDICT_RASTER',
         features_to_predict=None,
         output_raster=os.path.join(gdbDIR, 'mx5p_{}_{}'.format(yrs, mo)),
-        explanatory_rasters_matching='SRAD_{}_{} SRAD_1974_2013_{} false;TMAX_{}_{} TMAX_1974_2013_{} false;ACCM_{}_{} ACCM_1974_2013_{} false'.format(yrs, mo, mo, yrs, mo, mo, yrs, mo, mo)
+        explanatory_rasters_matching='SRAD_{}_{}.tif SRAD_1974_2013_{} false;TMAX_{}_{}.tif TMAX_1974_2013_{} false;ACCM_{}_{}.tif ACCM_1974_2013_{} false'.format(yrs, mo, mo, yrs, mo, mo, yrs, mo, mo)
       )
   
     outExtractByMask = arcpy.sa.ExtractByMask(os.path.join(gdbDIR, 'mx5p_{}_{}'.format(yrs, mo)), maskSHP, 'INSIDE')
@@ -192,10 +198,12 @@ with open(os.path.join(dataDIR, 'GB_CV.csv'), 'w') as fo:
   arcpy.management.Delete('GBfeatures')
   os.remove(os.path.join(dataDIR, 'GBfeatures_ExportTable.csv'))
   os.remove(featA)
+  os.remove(rasterA)
+  os.remove(rasterB)
+  os.remove(rasterC)
   os.remove(rasterD)
     
 
 for mo in range(1, 13):
   arcpy.management.Delete(os.path.join(gdbDIR, 'MX5P_{}_XYTableToPoint'.format(mo)))
-
 
