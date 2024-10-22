@@ -152,9 +152,13 @@ with open(os.path.join(dataDIR, 'EBK_CV.csv'), 'w') as fo:
     os.remove(rasterD)
 
   
-arcpy.management.Delete(ground.strip('.txt') + '_pts')
+
 arcpy.management.Delete('EBKfeatures')
 arcpy.management.Delete(os.path.join(dataDIR, 'EBKfeatures_ExportTable.csv'))
 os.remove(featA)
 os.remove(rasterD)
 
+for mo in range(1, 13):
+  arcpy.management.Delete('timepk_1974_2013_{}_pts'.format(mo))
+  
+  
