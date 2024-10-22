@@ -10,7 +10,6 @@ import numpy as np
 gcmLabel = 'CCSM4'
 
 storeDIR = r'E:\Grid_Inputs\{}'.format(gcmLabel)
-elevDIR = r'E:\Grid_Inputs\DEM'
 featDIR = r'E:\Ground_Inputs'
 dataDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\{}\Data'.format(gcmLabel)
 gdbDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\{}\{}.gdb'.format(gcmLabel, gcmLabel)
@@ -48,11 +47,10 @@ with open(os.path.join(dataDIR, 'FOCAL_RMSE.csv'), 'w') as fo:
     
     rasterBB = os.path.join(storeDIR, grids[0])
     rasterCC = os.path.join(storeDIR, grids[1])
-    rasterDD = os.path.join(elevDIR, 'DEM.tif')
-    
+
     rasterB = os.path.join(dataDIR, grids[0])
     rasterC = os.path.join(dataDIR, grids[1])
-    rasterD = os.path.join(dataDIR, 'DEM.tif')
+    rasterD = 'DEM'
   
     print(rasterB)
     print(rasterC)
@@ -60,14 +58,14 @@ with open(os.path.join(dataDIR, 'FOCAL_RMSE.csv'), 'w') as fo:
   
     shutil.copyfile(rasterBB, rasterB)
     shutil.copyfile(rasterCC, rasterC)
-    shutil.copyfile(rasterDD, rasterD)
   
+    outputCoordinateSystem='GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
+    snapRaster=rasterD
+    extent='-121.0 30.0 -102.0 43.0 GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
+    cellSize=rasterD
+    
     for raster in [rasterB, rasterC]:
   
-      outputCoordinateSystem='GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
-      snapRaster=rasterD
-      extent='-121.0 30.0 -102.0 43.0 GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
-      cellSize=0.008333333333
       with arcpy.EnvManager(outputCoordinateSystem=outputCoordinateSystem, snapRaster=snapRaster, extent=extent, cellSize=cellSize):
         out_raster = arcpy.sa.FocalStatistics(
           in_raster=raster,
@@ -138,5 +136,4 @@ with open(os.path.join(dataDIR, 'FOCAL_RMSE.csv'), 'w') as fo:
     os.remove(rasterB)
     if os.path.exists(rasterC):
       os.remove(rasterC)
-    os.remove(rasterD)
 
