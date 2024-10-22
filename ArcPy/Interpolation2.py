@@ -10,7 +10,6 @@ import numpy as np
 
 gcmLabel = 'CCSM4'
 storeDIR = r'E:\Grid_Inputs\{}'.format(gcmLabel)
-elevDIR = r'E:\Grid_Inputs\DEM'
 featDIR = r'E:\Ground_Inputs'
 dataDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\{}\Data'.format(gcmLabel)
 gdbDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\{}\{}.gdb'.format(gcmLabel, gcmLabel)
@@ -53,17 +52,14 @@ with open(os.path.join(dataDIR, 'EBK_CV.csv'), 'w') as fo:
     print(covars)
     
     featAA = os.path.join(featDIR, ground.split('_')[0].upper() + '_' + ground.split('_')[-1])
-    rasterDD = os.path.join(elevDIR, covars[3] + '.tif')
-    
     featA = os.path.join(dataDIR, ground)
     rasterA = covars[0]
     rasterB = covars[1]
     rasterC = covars[2]
-    rasterD = os.path.join(dataDIR, covars[3] + '.tif')
+    rasterD = covars[3]
     
     shutil.copyfile(featAA, featA)
-    shutil.copyfile(rasterDD, rasterD)
-  
+
     outputCoordinateSystem = 'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
     snapRaster = rasterD
     parallelProcessingFactor = '5'
@@ -149,14 +145,11 @@ with open(os.path.join(dataDIR, 'EBK_CV.csv'), 'w') as fo:
     arcpy.management.Delete('EBKfeatures')
     arcpy.management.Delete(os.path.join(dataDIR, 'EBKfeatures_ExportTable.csv'))
     os.remove(featA)
-    os.remove(rasterD)
 
-  
 
 arcpy.management.Delete('EBKfeatures')
 arcpy.management.Delete(os.path.join(dataDIR, 'EBKfeatures_ExportTable.csv'))
 os.remove(featA)
-os.remove(rasterD)
 
 for mo in range(1, 13):
   arcpy.management.Delete('timepk_1974_2013_{}_pts'.format(mo))
