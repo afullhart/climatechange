@@ -11,7 +11,6 @@ import numpy as np
 gcmLabel = 'CCSM4'
 
 storeDIR = r'E:\Grid_Inputs\{}'.format(gcmLabel)
-elevDIR = r'E:\Grid_Inputs\DEM'
 featDIR = r'E:\Ground_Inputs'
 dataDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\{}\Data'.format(gcmLabel)
 gdbDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\{}\{}.gdb'.format(gcmLabel, gcmLabel)
