@@ -29,7 +29,6 @@ var_labels = ['accm', 'tmax', 'tmin', 'txsd', 'tnsd', 'tdew', 'srad', 'srsd']
 year_labels = ['1974_2013', '2000_2029', '2010_2039', '2020_2049', '2030_2059', '2040_2069', '2050_2079', '2060_2089', '2070_2099']
 
 
-
 rasterAA = os.path.join(elevDIR, 'DEM.tif')
 rasterA = os.path.join(dataDIR, 'DEM.tif')
 shutil.copyfile(rasterAA, rasterA)
@@ -44,7 +43,6 @@ outExtractByMask.save(os.path.join(gdbDIR, 'DEM'))
 
 os.remove(rasterA)
 
-extent = [43.0, -121.0, -102.0, 30.0]
 
 map_io_data = []
 for mo in range(1, 13):
@@ -68,5 +66,4 @@ for grid in map_io_data:
   outExtractByMask.save(os.path.join(gdbDIR, grid[:-4]))
   
   os.remove(rasterA)
-
 
