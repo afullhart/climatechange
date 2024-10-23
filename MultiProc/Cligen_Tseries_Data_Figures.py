@@ -90,7 +90,6 @@ ptFILE = '/home/afullhart/Downloads/Points.csv'
 outFILE = '/home/afullhart/Downloads/CCSM4_Output_Data.csv'
 
 var_labels = ['mean', 'sdev', 'skew', 'pww', 'pwd', 'tmax', 'tmin', 'txsd', 'tnsd', 'srad', 'srsd', 'mx5p', 'tdew', 'timepk']
-year_labels = ['1974_2013', '2000_2029', '2010_2039', '2020_2049', '2030_2059', '2040_2069', '2050_2079', '2060_2089', '2070_2099']
 historical_var_labels = ['ratio', 'timepk']
 
 yr_str = '1974_2013'
