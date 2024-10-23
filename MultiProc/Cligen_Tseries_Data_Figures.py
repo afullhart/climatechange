@@ -281,8 +281,6 @@ def main(point):
 
   return([point[0], point[1], point[2], ann_ero, p_max, ann_acc])
 
-print('hello')
-
 
 if __name__ == '__main__':
   results = []
