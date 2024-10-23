@@ -108,8 +108,6 @@ with open(ptFILE) as f:
     y = float(row[2])
     point_list.append([i, x, y])
 
-point_list = point_list[:10000]
-
 def coord2pixel(x, y, trans):
   xpt = (((x - trans[0]) / trans[1]))
   ypt = (((y - trans[3]) / trans[5]))
