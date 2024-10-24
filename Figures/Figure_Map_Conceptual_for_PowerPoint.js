@@ -14,7 +14,7 @@ var pr_mo_im = dataset.first().select('pr').multiply(86400);
 var pr_mo_viz_im = pr_mo_im.visualize(prVisA);
 
 var prVisB = {
-  min: 1.0,
+  min: 1.5,
   max: 5.0,
   opacity:0.6,
   palette:['001137', '01abab', 'e7eb05', '620500'],
@@ -71,4 +71,3 @@ Export.image.toDrive({
   scale:400,
   maxPixels:1e10
 });
-
