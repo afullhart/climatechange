@@ -68,7 +68,7 @@ CALM     18.55 14.26 11.69  9.36 10.09 10.88  9.71 11.98 14.30 16.41 19.50 20.64
 
 
 ####
-"~6hr"
+"~8hr"
 ####
 
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -87,7 +87,7 @@ import numpy as np
 gdbDIR = '/home/afullhart/Downloads/CCSM4/CCSM4/CCSM4.gdb'
 cliDIR = '/home/afullhart/Downloads/cligen_53004_Linux'
 ptFILE = '/home/afullhart/Downloads/Points.csv'
-outFILE = '/home/afullhart/Downloads/CCSM4_Output_Data.csv'
+outFILE = '/home/afullhart/Downloads/CCSM4_Data_1974_2013.csv'
 
 var_labels = ['mean', 'sdev', 'skew', 'pww', 'pwd', 'tmax', 'tmin', 'txsd', 'tnsd', 'srad', 'srsd', 'mx5p', 'tdew', 'timepk']
 historical_var_labels = ['ratio', 'timepk']
@@ -123,6 +123,15 @@ def energy(p_, ip_, lp_, b_, eo_, a_, io_,):
   middle = ((a_*ip_)/(b_)) * (io_/lp_)
   outside = p_*eo_
   return (outside)*((1)-(middle*inside))
+
+def run_cligen(lbl):
+  output_file = os.path.join(cliDIR, f'{lbl}.txt')
+  command = f"""script -q -c 'cd {cliDIR} && ./cligen_53004_Linux -b1 -y100 -t5 -i{lbl}.par -o{lbl}.txt' /dev/null > /dev/null 2>&1"""
+  status = os.system(command)
+  if status == 0 and os.path.exists(output_file):
+    good = 1
+  else:
+    good = 0
 
 def main(point):
   
@@ -238,14 +247,13 @@ def main(point):
     
     f_out.write(wind_str)
 
-  args = './cligen_53004_Linux -b1 -y{} -t5 -i{} -o{}'.format(REC_LEN, fname + '.par', fname + '.txt')
-  sub.run(args=args, check=False, capture_output=False, text=False, shell=True, cwd=cliDIR)
+  run_cligen(fname)
 
   with open(os.path.join(cliDIR, fname + '.txt')) as f:
     lines = f.readlines()[15:]
   
-  os.remove(os.path.join(cliDIR, fname + '.txt'))
   os.remove(os.path.join(cliDIR, fname + '.par'))
+  os.remove(os.path.join(cliDIR, fname + '.txt'))
   
   ei_sum = 0.0
   p_max = 0.0
@@ -305,3 +313,5 @@ if __name__ == '__main__':
 # count = raster.RasterCount
 # proj = raster.GetProjection()
 # info = gdal.Info(raster)
+
+
