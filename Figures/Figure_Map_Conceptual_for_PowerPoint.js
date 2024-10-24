@@ -53,22 +53,22 @@ Export.image.toDrive({
   description:'ImageDaily',
   folder:'GEE_Downloads',
   scale:2000,
-  maxPixels:1e9
+  maxPixels:1e10
 });
 
 Export.image.toDrive({
   image:pr_dy_viz_im, 
   description:'ImageMonthly',
   folder:'GEE_Downloads',
-  scale:200,
-  maxPixels:1e9
+  scale:400,
+  maxPixels:1e10
 });
 
 Export.image.toDrive({
   image:pr_dy_viz_im, 
   description:'ImagePars',
   folder:'GEE_Downloads',
-  scale:200,
-  maxPixels:1e9
+  scale:400,
+  maxPixels:1e10
 });
 
