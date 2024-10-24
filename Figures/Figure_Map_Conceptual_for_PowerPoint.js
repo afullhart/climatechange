@@ -39,7 +39,7 @@ var dataset = ee.ImageCollection('NASA/NEX-DCP30')
 var dataset = dataset.filter(ee.Filter.eq('scenario', 'rcp45'));
 var dataset = dataset.filter(ee.Filter.eq('model', 'CCSM4'));
 var pr_par_im = dataset.first().select('pr').multiply(86400);
-var pr_par_viz_im = pr_mo_im.visualize(prVisC);
+var pr_par_viz_im = pr_par_im.visualize(prVisC);
 
 
 Map.setCenter(-110.97, 32.254, 10);
@@ -57,7 +57,7 @@ Export.image.toDrive({
 });
 
 Export.image.toDrive({
-  image:pr_dy_viz_im, 
+  image:pr_mo_viz_im, 
   description:'ImageMonthly',
   folder:'GEE_Downloads',
   scale:400,
@@ -65,7 +65,7 @@ Export.image.toDrive({
 });
 
 Export.image.toDrive({
-  image:pr_dy_viz_im, 
+  image:pr_par_viz_im, 
   description:'ImagePars',
   folder:'GEE_Downloads',
   scale:400,
