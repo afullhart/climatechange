@@ -67,6 +67,12 @@ CALM     18.55 14.26 11.69  9.36 10.09 10.88  9.71 11.98 14.30 16.41 19.50 20.64
  """
 
 
+
+
+####
+"~6hr"
+####
+
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import subprocess as sub
 import os
@@ -80,15 +86,16 @@ from osgeo import gdal
 from scipy import optimize
 import numpy as np
 
-gdbDIR = r'C:\Users\afullhart\Documents\ArcGIS\Projects\CCSM4\CCSM4.gdb'
-cliDIR = r'C:\Users\afullhart\Desktop\cligenv53'
-ptFILE = r'C:\Users\afullhart\Desktop\Points.csv'
-outFILE = r'C:\Users\afullhart\Desktop\CCSM4_Output_Data.csv'
+gdbDIR = '/home/afullhart/Downloads/CCSM4/CCSM4/CCSM4.gdb'
+cliDIR = '/home/afullhart/Downloads/cligen_53004_Linux'
+ptFILE = '/home/afullhart/Downloads/Points.csv'
+outFILE = '/home/afullhart/Downloads/CCSM4_Data_2070_2099.csv'
 
 var_labels = ['mean', 'sdev', 'skew', 'pww', 'pwd', 'tmax', 'tmin', 'txsd', 'tnsd', 'srad', 'srsd', 'mx5p', 'tdew', 'timepk']
-historical_var_labels = ['ratio', 'timepk']
+historical_var_labels = ['timepk']
 
-yr_str = '1974_2013'
+yr_str = '2070_2099'
+n_workers = 100
 REC_LEN = 100
 eo = 0.29; a = 0.72; io = 12.195
 
@@ -102,7 +109,7 @@ with open(ptFILE) as f:
     y = float(row[2])
     point_list.append([i, x, y])
 
-point_list = point_list[:100]
+point_list = point_list[800000:]
 
 def coord2pixel(x, y, trans):
   xpt = (((x - trans[0]) / trans[1]))
@@ -120,6 +127,15 @@ def energy(p_, ip_, lp_, b_, eo_, a_, io_,):
   middle = ((a_*ip_)/(b_)) * (io_/lp_)
   outside = p_*eo_
   return (outside)*((1)-(middle*inside))
+
+def run_cligen(lbl):
+  output_file = os.path.join(cliDIR, f'{lbl}.txt')
+  command = f"""script -q -c 'cd {cliDIR} && ./cligen_53004_Linux -b1 -y100 -t5 -i{lbl}.par -o{lbl}.txt' /dev/null > /dev/null 2>&1"""
+  status = os.system(command)
+  if status == 0 and os.path.exists(output_file):
+    good = 1
+  else:
+    good = 0
 
 def main(point):
   
@@ -235,14 +251,13 @@ def main(point):
     
     f_out.write(wind_str)
 
-  args = 'cligen53 -b1 -y{} -t5 -i{} -o{}'.format(REC_LEN, fname + '.par', fname + '.txt')
-  sub.run(args=args, check=False, capture_output=False, text=False, shell=True, stdout=sub.DEVNULL, stderr=sub.DEVNULL, cwd=cliDIR)
+  run_cligen(fname)
 
   with open(os.path.join(cliDIR, fname + '.txt')) as f:
     lines = f.readlines()[15:]
   
-  os.remove(os.path.join(cliDIR, fname + '.txt'))
   os.remove(os.path.join(cliDIR, fname + '.par'))
+  os.remove(os.path.join(cliDIR, fname + '.txt'))
   
   ei_sum = 0.0
   p_max = 0.0
@@ -279,18 +294,15 @@ def main(point):
   return([point[0], point[1], point[2], ann_ero, p_max, ann_acc])
 
 
-
 if __name__ == '__main__':
   results = []
-  with ProcessPoolExecutor(max_workers=4) as executor, open(outFILE, 'w') as f_out:
+  with ProcessPoolExecutor(max_workers=n_workers) as executor, open(outFILE, 'w') as f_out:
     f_out.write('index,POINT_X,POINT_Y,EROSIVITY,100_YR_DLY,ANNUAL\n')
     pool = {executor.submit(main, p): p for p in point_list}
     for future in as_completed(pool):
       res = future.result()
       results.append(res)
       f_out.write(','.join([str(res[0]), str(res[1]), str(res[2]), str(res[3]), str(res[4]), str(res[5])]) + '\n')
-
-
 
 
 
