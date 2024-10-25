@@ -67,8 +67,10 @@ CALM     18.55 14.26 11.69  9.36 10.09 10.88  9.71 11.98 14.30 16.41 19.50 20.64
  """
 
 
+
+
 ####
-"~8hr"
+"~6hr"
 ####
 
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -87,12 +89,12 @@ import numpy as np
 gdbDIR = '/home/afullhart/Downloads/CCSM4/CCSM4/CCSM4.gdb'
 cliDIR = '/home/afullhart/Downloads/cligen_53004_Linux'
 ptFILE = '/home/afullhart/Downloads/Points.csv'
-outFILE = '/home/afullhart/Downloads/CCSM4_Data_1974_2013.csv'
+outFILE = '/home/afullhart/Downloads/CCSM4_Data_2070_2099.csv'
 
 var_labels = ['mean', 'sdev', 'skew', 'pww', 'pwd', 'tmax', 'tmin', 'txsd', 'tnsd', 'srad', 'srsd', 'mx5p', 'tdew', 'timepk']
-historical_var_labels = ['ratio', 'timepk']
+historical_var_labels = ['timepk']
 
-yr_str = '1974_2013'
+yr_str = '2070_2099'
 n_workers = 100
 REC_LEN = 100
 eo = 0.29; a = 0.72; io = 12.195
@@ -106,6 +108,8 @@ with open(ptFILE) as f:
     x = float(row[1])
     y = float(row[2])
     point_list.append([i, x, y])
+
+point_list = point_list[800000:]
 
 def coord2pixel(x, y, trans):
   xpt = (((x - trans[0]) / trans[1]))
@@ -313,5 +317,3 @@ if __name__ == '__main__':
 # count = raster.RasterCount
 # proj = raster.GetProjection()
 # info = gdal.Info(raster)
-
-
