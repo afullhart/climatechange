@@ -89,14 +89,14 @@ import numpy as np
 gdbDIR = '/home/afullhart/Downloads/CCSM4/CCSM4/CCSM4.gdb'
 cliDIR = '/home/afullhart/Downloads/cligen_53004_Linux'
 ptFILE = '/home/afullhart/Downloads/Points.csv'
-outFILE = '/home/afullhart/Downloads/CCSM4_Data_2070_2099.csv'
+outFILE = '/home/afullhart/Downloads/CCSM4_Data_1974_2013.csv'
 
 var_labels = ['mean', 'sdev', 'skew', 'pww', 'pwd', 'tmax', 'tmin', 'txsd', 'tnsd', 'srad', 'srsd', 'mx5p', 'tdew', 'timepk']
 historical_var_labels = ['timepk']
 
-yr_str = '2070_2099'
+yr_str = '1974_2013'
 n_workers = 100
-REC_LEN = 100
+REC_LEN = 50
 eo = 0.29; a = 0.72; io = 12.195
 
 with open(ptFILE) as f:
@@ -128,7 +128,7 @@ def energy(p_, ip_, lp_, b_, eo_, a_, io_,):
 
 def run_cligen(lbl):
   output_file = os.path.join(cliDIR, f'{lbl}.txt')
-  command = f"""script -q -c 'cd {cliDIR} && ./cligen_53004_Linux -b1 -y100 -t5 -i{lbl}.par -o{lbl}.txt' /dev/null > /dev/null 2>&1"""
+  command = f"""script -q -c 'cd {cliDIR} && ./cligen_53004_Linux -b1 -y{REC_LEN} -t5 -i{lbl}.par -o{lbl}.txt' /dev/null > /dev/null 2>&1"""
   status = os.system(command)
   if status == 0 and os.path.exists(output_file):
     good = 1
@@ -262,29 +262,30 @@ def main(point):
   accum = 0.0
   for line in lines[:-1]:
     row = line.split()
-    p = float(row[3])
-    tavg = (float(row[7]) + float(row[8])) / 2.
-    accum += p
+    if row[3] != '*****':
+      p = float(row[3])
+      tavg = (float(row[7]) + float(row[8])) / 2.
+      accum += p
 
-    if p >= 12.7 and tavg > 0.:
-        ip = float(row[6])
-        b = optimize.newton(func=newton, x0=ip, args=(ip,))
-        d = float(row[4])
-        lp = ip * (p/d)
-        if d > 0.5:
-            l30 = i30(p, ip, d, b)
-        else:
-            l30 = 2*p
-        e = energy(p, ip, lp, b, eo, a, io)
-        ei = e*l30
-        ei_sum += ei
+      if p >= 12.7 and tavg > 0.:
+          ip = float(row[6])
+          b = optimize.newton(func=newton, x0=ip, args=(ip,))
+          d = float(row[4])
+          lp = ip * (p/d)
+          if d > 0.5:
+              l30 = i30(p, ip, d, b)
+          else:
+              l30 = 2*p
+          e = energy(p, ip, lp, b, eo, a, io)
+          ei = e*l30
+          ei_sum += ei
 
-    else:
-        ei = 0.
-        ei_sum += ei
+      else:
+          ei = 0.
+          ei_sum += ei
 
-    if p > p_max:
-      p_max = p
+      if p > p_max:
+        p_max = p
 
   ann_ero = ei_sum / REC_LEN
   ann_acc = accum / REC_LEN
@@ -315,3 +316,6 @@ if __name__ == '__main__':
 # count = raster.RasterCount
 # proj = raster.GetProjection()
 # info = gdal.Info(raster)
+
+
+
