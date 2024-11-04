@@ -15,9 +15,9 @@ var pr_mo_viz_im = pr_mo_im.visualize(prVisA);
 
 var prVisB = {
   min: 1.5,
-  max: 5.0,
+  max: 4.5,
   opacity:0.6,
-  palette:['001137', '01abab', 'e7eb05', '620500'],
+  palette: 'violet, indigo, blue, green, yellow, orange, red',
 };
 
 var dataset = ee.ImageCollection('IDAHO_EPSCOR/MACAv2_METDATA')
@@ -71,3 +71,4 @@ Export.image.toDrive({
   scale:400,
   maxPixels:1e10
 });
+
