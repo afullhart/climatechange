@@ -68,7 +68,6 @@ CALM     18.55 14.26 11.69  9.36 10.09 10.88  9.71 11.98 14.30 16.41 19.50 20.64
 
 
 
-
 ####
 "~6hr"
 ####
@@ -86,17 +85,19 @@ from osgeo import gdal
 from scipy import optimize
 import numpy as np
 
-gdbDIR = '/home/afullhart/Downloads/CCSM4/CCSM4/CCSM4.gdb'
+gdbDIR = '/home/afullhart/Downloads/CCSM4/CCSM4.gdb'
 cliDIR = '/home/afullhart/Downloads/cligen_53004_Linux'
+parDIR = '/home/afullhart/Downloads/pars_2070'
 ptFILE = '/home/afullhart/Downloads/Points.csv'
-outFILE = '/home/afullhart/Downloads/CCSM4_Data_1974_2013.csv'
+outFILE = '/home/afullhart/Downloads/CCSM4_Data_2070_2099.csv'
+
 
 var_labels = ['mean', 'sdev', 'skew', 'pww', 'pwd', 'tmax', 'tmin', 'txsd', 'tnsd', 'srad', 'srsd', 'mx5p', 'tdew', 'timepk']
 historical_var_labels = ['timepk']
 
-yr_str = '1974_2013'
+yr_str = '2070_2099'
 n_workers = 100
-REC_LEN = 50
+REC_LEN = 100
 eo = 0.29; a = 0.72; io = 12.195
 
 with open(ptFILE) as f:
@@ -126,6 +127,142 @@ def energy(p_, ip_, lp_, b_, eo_, a_, io_,):
   outside = p_*eo_
   return (outside)*((1)-(middle*inside))
 
+# def main(point):
+  
+#   fname = str(point[0])
+  
+#   par_df = pd.DataFrame(columns=range(1, 12), index=var_labels)
+
+#   for varlb in var_labels:
+    
+#     if varlb not in historical_var_labels:
+#       raster_name = varlb + '_' + yr_str
+#     else:
+#       raster_name = varlb + '_1974_2013'
+
+#     raster = gdal.Open(f'OpenFileGDB:{gdbDIR}:{raster_name}')
+#     transform = raster.GetGeoTransform()
+#     xp, yp = coord2pixel(point[1], point[2], transform)
+
+#     for mo in range(1, 13):
+      
+#       band = raster.GetRasterBand(mo)
+#       pixel_value = band.ReadAsArray(int(xp), int(yp), 1, 1)[0, 0] 
+#       par_df.at[varlb, mo] = pixel_value  
+#       band = None
+  
+#     raster = None
+
+#   par_df.loc['tmax'] = par_df.loc['tmax'].apply(lambda x: x*(9.0/5.0) + 32.0)
+#   par_df.loc['tmin'] = par_df.loc['tmin'].apply(lambda x: x*(9.0/5.0) + 32.0)
+#   par_df.loc['tdew'] = par_df.loc['tdew'].apply(lambda x: x*(9.0/5.0) + 32.0)
+#   par_df.loc['txsd'] = par_df.loc['txsd'].apply(lambda x: x*(9.0/5.0))
+#   par_df.loc['tnsd'] = par_df.loc['tnsd'].apply(lambda x: x*(9.0/5.0))
+#   par_df.loc['srad'] = par_df.loc['srad'].apply(lambda x: x*86400.0/41868.0)
+#   par_df.loc['srsd'] = par_df.loc['srsd'].apply(lambda x: x*86400.0/41868.0)
+  
+#   meanP_list = par_df.loc['mean']
+#   sdevP_list = par_df.loc['sdev']
+#   skewP_list = par_df.loc['skew']
+#   ww_list = par_df.loc['pww']
+#   wd_list = par_df.loc['pwd']
+#   tmax_list = par_df.loc['tmax']
+#   tmin_list = par_df.loc['tmin']
+#   sdtmax_list = par_df.loc['txsd']
+#   sdtmin_list = par_df.loc['tnsd']
+#   solrad_list = par_df.loc['srad']
+#   solsdev_list = par_df.loc['srsd']
+#   mx5p_list = par_df.loc['mx5p']
+#   dewpt_list = par_df.loc['tdew']
+#   timepk_list = par_df.loc['timepk'].sort_values()
+
+#   meanP, sdevP, skewP, ww, wd = [], [], [], [], []
+#   tmax, tmin, sdtmax, sdtmin = [], [], [], []
+#   solrad, solsdev, mx5p, dewpt, timepk = [], [], [], [], []
+
+#   for mo in range(1, 13):
+#     meanP.append('{:.2f}'.format(meanP_list[mo]).lstrip('0'))
+#     sdevP.append('{:.2f}'.format(sdevP_list[mo]).lstrip('0'))
+#     skewP.append('{:.2f}'.format(skewP_list[mo]).lstrip('0'))
+#     ww.append('{:.2f}'.format(ww_list[mo]).lstrip('0'))
+#     wd.append('{:.2f}'.format(wd_list[mo]).lstrip('0'))
+#     tmax.append('{:.2f}'.format(tmax_list[mo]).lstrip('0'))
+#     tmin.append('{:.2f}'.format(tmin_list[mo]).lstrip('0'))
+#     sdtmax.append('{:.2f}'.format(sdtmax_list[mo]).lstrip('0'))
+#     sdtmin.append('{:.2f}'.format(sdtmin_list[mo]).lstrip('0')) 
+#     solrad.append('%.0f' %round(float(solrad_list[mo]), 0) + '.')
+#     solsdev.append('%.1f' %round(float(solsdev_list[mo]), 1))
+#     mx5p.append(('%.2f' %round(float(mx5p_list[mo]), 2)).lstrip('0'))
+#     dewpt.append('%.2f' %round(float(dewpt_list[mo]), 2))
+#     timepk.append(('%.3f' %round(float(timepk_list[mo]), 3)).lstrip('0'))
+
+#   with open(os.path.join(parDIR, fname + '.par'), 'w') as f_out: 
+#     lat, lon = 40.0, -110.0
+#     title = ' Grid point'
+#     yrsStr = 'YEARS= 30. TYPE= 1'
+#     tpStr = 'TP5 = 1.23 TP6= 2.34' 
+
+#     lat, lon = '%.2f' % round(float(lat), 2), '%.2f' % round(float(lon), 2)
+#     elev = 123.0
+#     elev = '%.0f' % round(float(elev), 0) + '.'
+
+#     f_out.write(title + '\n' )
+#     f_out.write(' LATT=' + formatting_obj.spacing_lat_lon(lat) + lat)
+#     f_out.write(' LONG=' + formatting_obj.spacing_lat_lon(lon) + lon)
+#     f_out.write(' ' + yrsStr + '\n')
+#     f_out.write(' ELEVATION =' + formatting_obj.spacing_elev(elev) + elev)
+#     f_out.write(' ' + tpStr + '\n')
+
+#     gen = formatting_obj.spacing_gen_new( meanP )
+#     f_out.write( ' MEAN P ' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(meanP)] ) + '\n' )
+#     gen = formatting_obj.spacing_gen_new( sdevP )
+#     f_out.write( ' S DEV P' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(sdevP)] ) + '\n' )
+#     gen = formatting_obj.spacing_gen_new( skewP )
+#     f_out.write( ' SKEW  P' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(skewP)] ) + '\n' )
+#     gen = formatting_obj.spacing_gen_new( ww )
+#     f_out.write( ' P(W/W) ' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(ww)] ) + '\n' )
+#     gen = formatting_obj.spacing_gen_new( wd )
+#     f_out.write( ' P(W/D) ' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(wd)] ) + '\n' )
+#     gen = formatting_obj.spacing_gen_new( tmax )
+#     f_out.write( ' TMAX AV' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(tmax)] ) + '\n' )
+#     gen = formatting_obj.spacing_gen_new( tmin )
+#     f_out.write( ' TMIN AV' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(tmin)] ) + '\n' )
+#     gen = formatting_obj.spacing_gen_new( sdtmax )
+#     f_out.write( ' SD TMAX' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(sdtmax)] ) + '\n' )
+#     gen = formatting_obj.spacing_gen_new( sdtmin )
+#     f_out.write( ' SD TMIN' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(sdtmin)] ) + '\n' )
+#     f_out.write(' SOL.RAD  191.  274.  371.  487.  603.  678.  687.  594.  462.  323.  189.  161.\n')
+#     f_out.write(' SD SOL   50.0  68.1  90.3 103.9 105.7  87.4  48.7  60.6  66.4  78.5  56.2  36.9\n')
+#     gen = formatting_obj.spacing_gen_new( mx5p )
+#     f_out.write( ' MX .5 P' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(mx5p)] ) + '\n' )
+#     f_out.write(' DEW PT  39.56 41.56 42.67 41.73 44.73 47.77 52.71 52.67 50.65 45.61 42.51 38.55\n')
+#     gen = formatting_obj.spacing_gen_new( timepk )
+#     f_out.write( 'Time Pk ' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(timepk)] ) + '\n' )    
+#     f_out.write(wind_str)
+
+#   return 0
+
+# if __name__ == '__main__':
+#   results = []
+#   with ProcessPoolExecutor(max_workers=n_workers) as executor:
+#     pool = {executor.submit(main, p): p for p in point_list}
+#     ct = 0
+#     for future in as_completed(pool):
+#       res = future.result()
+#       results.append(res)
+#       ct += 1
+#       if ct % 100000 == 0:
+#         print(ct)
+
+
+
+
+
+#cd /home/afullhart/Downloads/cligen_53004_Linux && parallel --progress "script -q -c './cligen_53004_Linux -b1 -y30 -t5 -i{} -o{.}.txt' /dev/null > /dev/null 2>&1" ::: *.par
+
+
+
+
 def run_cligen(lbl):
   output_file = os.path.join(cliDIR, f'{lbl}.txt')
   command = f"""script -q -c 'cd {cliDIR} && ./cligen_53004_Linux -b1 -y{REC_LEN} -t5 -i{lbl}.par -o{lbl}.txt' /dev/null > /dev/null 2>&1"""
@@ -135,126 +272,15 @@ def run_cligen(lbl):
   else:
     good = 0
 
+
 def main(point):
-  
+
   fname = str(point[0])
-  
-  par_df = pd.DataFrame(columns=range(1, 12), index=var_labels)
-
-  for varlb in var_labels:
-    
-    if varlb not in historical_var_labels:
-      raster_name = varlb + '_' + yr_str
-    else:
-      raster_name = varlb + '_1974_2013'
-
-    raster = gdal.Open(f'OpenFileGDB:{gdbDIR}:{raster_name}')
-    transform = raster.GetGeoTransform()
-    xp, yp = coord2pixel(point[1], point[2], transform)
-
-    for mo in range(1, 13):
-      
-      band = raster.GetRasterBand(mo)
-      pixel_value = band.ReadAsArray(int(xp), int(yp), 1, 1)[0, 0] 
-      par_df.at[varlb, mo] = pixel_value  
-      band = None
-  
-    raster = None
-
-  par_df.loc['tmax'] = par_df.loc['tmax'].apply(lambda x: x*(9.0/5.0) + 32.0)
-  par_df.loc['tmin'] = par_df.loc['tmin'].apply(lambda x: x*(9.0/5.0) + 32.0)
-  par_df.loc['tdew'] = par_df.loc['tdew'].apply(lambda x: x*(9.0/5.0) + 32.0)
-  par_df.loc['txsd'] = par_df.loc['txsd'].apply(lambda x: x*(9.0/5.0))
-  par_df.loc['tnsd'] = par_df.loc['tnsd'].apply(lambda x: x*(9.0/5.0))
-  par_df.loc['srad'] = par_df.loc['srad'].apply(lambda x: x*86400.0/41868.0)
-  par_df.loc['srsd'] = par_df.loc['srsd'].apply(lambda x: x*86400.0/41868.0)
-  
-  meanP_list = par_df.loc['mean']
-  sdevP_list = par_df.loc['sdev']
-  skewP_list = par_df.loc['skew']
-  ww_list = par_df.loc['pww']
-  wd_list = par_df.loc['pwd']
-  tmax_list = par_df.loc['tmax']
-  tmin_list = par_df.loc['tmin']
-  sdtmax_list = par_df.loc['txsd']
-  sdtmin_list = par_df.loc['tnsd']
-  solrad_list = par_df.loc['srad']
-  solsdev_list = par_df.loc['srsd']
-  mx5p_list = par_df.loc['mx5p']
-  dewpt_list = par_df.loc['tdew']
-  timepk_list = par_df.loc['timepk']
-
-  meanP, sdevP, skewP, ww, wd = [], [], [], [], []
-  tmax, tmin, sdtmax, sdtmin = [], [], [], []
-  solrad, solsdev, mx5p, dewpt, timepk = [], [], [], [], []
-
-  for mo in range(1, 13):
-    meanP.append('{:.2f}'.format(meanP_list[mo]).lstrip('0'))
-    sdevP.append('{:.2f}'.format(sdevP_list[mo]).lstrip('0'))
-    skewP.append('{:.2f}'.format(skewP_list[mo]).lstrip('0'))
-    ww.append('{:.2f}'.format(ww_list[mo]).lstrip('0'))
-    wd.append('{:.2f}'.format(wd_list[mo]).lstrip('0'))
-    tmax.append('{:.2f}'.format(tmax_list[mo]).lstrip('0'))
-    tmin.append('{:.2f}'.format(tmin_list[mo]).lstrip('0'))
-    sdtmax.append('{:.2f}'.format(sdtmax_list[mo]).lstrip('0'))
-    sdtmin.append('{:.2f}'.format(sdtmin_list[mo]).lstrip('0')) 
-    solrad.append('%.0f' %round(float(solrad_list[mo]), 0) + '.')
-    solsdev.append('%.1f' %round(float(solsdev_list[mo]), 1))
-    mx5p.append(('%.2f' %round(float(mx5p_list[mo]), 2)).lstrip('0'))
-    dewpt.append('%.2f' %round(float(dewpt_list[mo]), 2))
-    timepk.append(('%.3f' %round(float(timepk_list[mo]), 3)).lstrip('0'))
-
-  with open(os.path.join(cliDIR, fname + '.par'), 'w') as f_out: 
-    lat, lon = 40.0, -110.0
-    title = ' Grid point'
-    yrsStr = 'YEARS= 30. TYPE= 1'
-    tpStr = 'TP5 = 1.23 TP6= 2.34' 
-
-    lat, lon = '%.2f' % round(float(lat), 2), '%.2f' % round(float(lon), 2)
-    elev = 123.0
-    elev = '%.0f' % round(float(elev), 0) + '.'
-
-    f_out.write(title + '\n' )
-    f_out.write(' LATT=' + formatting_obj.spacing_lat_lon(lat) + lat)
-    f_out.write(' LONG=' + formatting_obj.spacing_lat_lon(lon) + lon)
-    f_out.write(' ' + yrsStr + '\n')
-    f_out.write(' ELEVATION =' + formatting_obj.spacing_elev(elev) + elev)
-    f_out.write(' ' + tpStr + '\n')
-
-    gen = formatting_obj.spacing_gen_new( meanP )
-    f_out.write( ' MEAN P ' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(meanP)] ) + '\n' )
-    gen = formatting_obj.spacing_gen_new( sdevP )
-    f_out.write( ' S DEV P' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(sdevP)] ) + '\n' )
-    gen = formatting_obj.spacing_gen_new( skewP )
-    f_out.write( ' SKEW  P' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(skewP)] ) + '\n' )
-    gen = formatting_obj.spacing_gen_new( ww )
-    f_out.write( ' P(W/W) ' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(ww)] ) + '\n' )
-    gen = formatting_obj.spacing_gen_new( wd )
-    f_out.write( ' P(W/D) ' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(wd)] ) + '\n' )
-    gen = formatting_obj.spacing_gen_new( tmax )
-    f_out.write( ' TMAX AV' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(tmax)] ) + '\n' )
-    gen = formatting_obj.spacing_gen_new( tmin )
-    f_out.write( ' TMIN AV' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(tmin)] ) + '\n' )
-    gen = formatting_obj.spacing_gen_new( sdtmax )
-    f_out.write( ' SD TMAX' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(sdtmax)] ) + '\n' )
-    gen = formatting_obj.spacing_gen_new( sdtmin )
-    f_out.write( ' SD TMIN' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(sdtmin)] ) + '\n' )
-    f_out.write(' SOL.RAD  191.  274.  371.  487.  603.  678.  687.  594.  462.  323.  189.  161.\n')
-    f_out.write(' SD SOL   50.0  68.1  90.3 103.9 105.7  87.4  48.7  60.6  66.4  78.5  56.2  36.9\n')
-    gen = formatting_obj.spacing_gen_new( mx5p )
-    f_out.write( ' MX .5 P' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(mx5p)] ) + '\n' )
-    f_out.write(' DEW PT  39.56 41.56 42.67 41.73 44.73 47.77 52.71 52.67 50.65 45.61 42.51 38.55\n')
-    gen = formatting_obj.spacing_gen_new( timepk )
-    f_out.write( 'Time Pk ' + ''.join( [next(gen) + str(x) + next(gen) if i < 1 else str(x) if i == 11 else str(x) + next(gen) for i, x in enumerate(timepk)] ) + '\n' )    
-    
-    f_out.write(wind_str)
-
   run_cligen(fname)
 
   with open(os.path.join(cliDIR, fname + '.txt')) as f:
     lines = f.readlines()[15:]
   
-  os.remove(os.path.join(cliDIR, fname + '.par'))
   os.remove(os.path.join(cliDIR, fname + '.txt'))
   
   ei_sum = 0.0
@@ -267,25 +293,25 @@ def main(point):
       tavg = (float(row[7]) + float(row[8])) / 2.
       accum += p
 
-      if p >= 12.7 and tavg > 0.:
-          ip = float(row[6])
-          b = optimize.newton(func=newton, x0=ip, args=(ip,))
-          d = float(row[4])
-          lp = ip * (p/d)
-          if d > 0.5:
-              l30 = i30(p, ip, d, b)
-          else:
-              l30 = 2*p
-          e = energy(p, ip, lp, b, eo, a, io)
-          ei = e*l30
-          ei_sum += ei
+      if p >= 12.7 and tavg > 2.0:
+        ip = float(row[6])
+        b = optimize.newton(func=newton, x0=ip, args=(ip,))
+        d = float(row[4])
+        lp = ip * (p/d)
+        if d > 0.5:
+            l30 = i30(p, ip, d, b)
+        else:
+            l30 = 2*p
+        e = energy(p, ip, lp, b, eo, a, io)
+        ei = e*l30
+        ei_sum += ei
+
+        if p > p_max:
+          p_max = p
 
       else:
           ei = 0.
           ei_sum += ei
-
-      if p > p_max:
-        p_max = p
 
   ann_ero = ei_sum / REC_LEN
   ann_acc = accum / REC_LEN
@@ -293,16 +319,20 @@ def main(point):
   return([point[0], point[1], point[2], ann_ero, p_max, ann_acc])
 
 
+
 if __name__ == '__main__':
   results = []
   with ProcessPoolExecutor(max_workers=n_workers) as executor, open(outFILE, 'w') as f_out:
-    f_out.write('index,POINT_X,POINT_Y,EROSIVITY,100_YR_DLY,ANNUAL\n')
+    f_out.write('index,POINT_X,POINT_Y,EROSIVITY,MAX_DLY,ANNUAL\n')
     pool = {executor.submit(main, p): p for p in point_list}
+    ct = 0
     for future in as_completed(pool):
       res = future.result()
       results.append(res)
       f_out.write(','.join([str(res[0]), str(res[1]), str(res[2]), str(res[3]), str(res[4]), str(res[5])]) + '\n')
-
+      ct += 1
+      if ct % 100000 == 0:
+        print(ct)
 
 
 # transform = raster.GetGeoTransform()
@@ -316,6 +346,4 @@ if __name__ == '__main__':
 # count = raster.RasterCount
 # proj = raster.GetProjection()
 # info = gdal.Info(raster)
-
-
 
