@@ -3,7 +3,8 @@ var points = ee.FeatureCollection('users/andrewfullhart/GHCNd_Coords');
 //var path = 'NASA/NEX-DCP30'; //'pr kg/m^2/s'
 //var nex_set = ee.ImageCollection(path);
 
-var path = 'users/gponce/usda_ars/image_collections/prism800m_monthly_precipitation'; //'b1'
+//Private dataset path
+var path = //'b1'
 var pri_set = ee.ImageCollection(path).select('b1');
 
 var bounds = pri_set.geometry().bounds();
